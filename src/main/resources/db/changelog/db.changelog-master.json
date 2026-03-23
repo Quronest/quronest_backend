@@ -1,3 +1,134 @@
 {
-  "databaseChangeLog": []
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "user_details",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "user_details_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "email",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "username",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "fullname",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "password",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "roles",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "account_status",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "email_verified",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "phone",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "phone_verified",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "other_data",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "blacklisted",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_user_details_email",
+              "tableName": "user_details",
+              "columns": [
+                {
+                  "column": {
+                    "name": "email"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_user_details_username",
+              "tableName": "user_details",
+              "columns": [
+                {
+                  "column": {
+                    "name": "username"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
 }
