@@ -29,6 +29,9 @@ public class User {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "fullname")
+    private String fullname;
+
     @Column(name = "email", unique = true)
     @ValidEmail
     private String email;
@@ -47,7 +50,7 @@ public class User {
     private UserAccountStatus accountStatus;
 
     @Column(name = "email_verified")
-    private boolean emailVerified;
+    private boolean emailVerified = false;
 
     @Column(name = "phone")
     private String phone;
@@ -55,12 +58,9 @@ public class User {
     @Column(name = "phone_verified")
     private boolean phoneVerified;
 
-    @Column(name = "fullname")
-    private String fullname;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "other_data", columnDefinition = "jsonb")
-    private UserAbout about;
+    private UserAbout about = new UserAbout();
 
     @Column(name = "blacklisted")
     private boolean blacklisted = false;
@@ -72,6 +72,11 @@ public class User {
     @Column(name = "last_update_timestamp")
     @UpdateTimestamp
     private LocalDateTime lastUpdateTimestamp;
+
+    public User(String fullname, String email) {
+        this.fullname = fullname;
+        this.email = email;
+    }
 
     public boolean isProfileComplete() {
         return getAccountStatus() == UserAccountStatus.COMPLETE;
