@@ -62,7 +62,7 @@ public class SecurityUser extends AbstractUserAccount implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return this.user.isEmailVerified();
+        return !this.user.isBlacklisted();
     }
 
 }

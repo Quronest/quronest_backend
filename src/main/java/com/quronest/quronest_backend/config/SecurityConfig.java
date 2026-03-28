@@ -1,5 +1,6 @@
 package com.quronest.quronest_backend.config;
 
+import com.quronest.quronest_backend.security.CustomLogoutHandler;
 import com.quronest.quronest_backend.security.CustomUserDetailsService;
 import com.quronest.quronest_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -30,10 +31,13 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomLogoutHandler customLogoutHandler;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomLogoutHandler customLogoutHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customLogoutHandler = customLogoutHandler;
     }
 
     @Bean
@@ -42,12 +46,14 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                           session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Permit public urls
                         .requestMatchers(Urls.ALL_PUBLIC_URLS).permitAll()
                         // Rest should be authenticated
                         .anyRequest().authenticated())
+
+                .authenticationProvider(authenticationProvider())
 
                 // userDetails service
                 .userDetailsService(userDetailsService)
@@ -55,24 +61,26 @@ public class SecurityConfig {
                 // jwt filter chain
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // Logout
-                .logout(logout -> logout.logoutUrl(Urls.PUBLIC_AUTH_CONTROLLER + "/logout")
-                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                        .invalidateHttpSession(true))
-
                 // Forbidden if not authenticated
                 .exceptionHandling(customizer -> customizer.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.FORBIDDEN)));
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
+                // logout
+                .logout(logout -> logout
+                        .logoutUrl(Urls.PUBLIC_AUTH_CONTROLLER + "/logout")
+                        .addLogoutHandler(customLogoutHandler)
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                        .invalidateHttpSession(true)
+                );
 
         return http.build();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(10));
-        return provider;
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        authProvider.setPasswordEncoder(new BCryptPasswordEncoder());
+        return authProvider;
     }
 
     @Bean

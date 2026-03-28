@@ -1,5 +1,7 @@
 package com.quronest.quronest_backend.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,31 +23,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final CookieUtils cookieUtils;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         // get accessToken from cookie
-        String jwt = CookieUtils.getCookieValue(request, "accessToken").orElse(null);
+        String jwt = cookieUtils.getCookieValue(request, "accessToken").orElse(null);
 
-        if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            String username = jwtService.extractUsername(jwt);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        try {
+            if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                String username = jwtService.extractUsername(jwt);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
+                if (jwtService.isAccessTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                                                                                                            null,
+                                                                                                            userDetails.getAuthorities());
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (ExpiredJwtException ex) {
+            handleExpiredToken(response);
+
+        } catch (JwtException ex) {
+            handleInvalidToken(response);
         }
 
         filterChain.doFilter(request, response);
 
+    }
+
+    private void handleExpiredToken(HttpServletResponse response) {
+        cookieUtils.clearCookie(response, "accessToken");
+        cookieUtils.clearCookie(response, "refreshToken");
+
+        SecurityContextHolder.clearContext();
+    }
+
+    private void handleInvalidToken(HttpServletResponse response) {
+        handleExpiredToken(response);
     }
 }

@@ -10,6 +10,9 @@ import com.quronest.quronest_backend.model.UserAccountStatus;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.UserRepository;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.util.UUID;
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -94,7 +98,9 @@ public class UserService {
     }
 
     public void checkUserAlreadyAuthenticated(Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
+        log.info("auth = {}", authentication);
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
             throw new UserAlreadyAuthenticatedException();
         }
     }

@@ -126,6 +126,84 @@
                 }
               ]
             }
+          },
+          {
+            "createTable": {
+              "tableName": "refresh_token",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "refresh_token_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "token",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expiry_date",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "baseTableName": "refresh_token",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "constraintName": "fk_refresh_token_user",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_refresh_token_user_id",
+              "tableName": "refresh_token",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_refresh_token_token",
+              "tableName": "refresh_token",
+              "columns": [
+                {
+                  "column": {
+                    "name": "token"
+                  }
+                }
+              ]
+            }
           }
         ]
       }
