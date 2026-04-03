@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -37,9 +38,17 @@ public class RefreshToken {
     @CreationTimestamp
     private LocalDateTime creationTimestamp;
 
+    @Column(name = "update_timestamp")
+    @UpdateTimestamp
+    private LocalDateTime updateTimestamp;
+
     public RefreshToken(User user, String token, LocalDateTime expiryDate) {
         this.user = user;
         this.token = token;
         this.expiryDate = expiryDate;
+    }
+
+    public boolean isExpired() {
+        return !expiryDate.isAfter(LocalDateTime.now());
     }
 }

@@ -46,6 +46,12 @@
                 },
                 {
                   "column": {
+                    "name": "avatar",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
                     "name": "roles",
                     "type": "TEXT"
                   }
@@ -94,7 +100,7 @@
                 },
                 {
                   "column": {
-                    "name": "last_update_timestamp",
+                    "name": "update_timestamp",
                     "type": "TIMESTAMP WITHOUT TIME ZONE"
                   }
                 }
@@ -163,6 +169,12 @@
                 {
                   "column": {
                     "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
                     "type": "TIMESTAMP WITHOUT TIME ZONE"
                   }
                 }

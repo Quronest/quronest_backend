@@ -3,19 +3,22 @@ package com.quronest.quronest_backend.service;
 import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.dto.BooleanDto;
 import com.quronest.quronest_backend.dto.RegisterUserDto;
-import com.quronest.quronest_backend.exception.UserAlreadyAuthenticatedException;
-import com.quronest.quronest_backend.exception.UserAlreadyExistException;
-import com.quronest.quronest_backend.exception.UserBlackListedException;
+import com.quronest.quronest_backend.dto.UserProfileDto;
+import com.quronest.quronest_backend.exception.*;
 import com.quronest.quronest_backend.model.UserAccountStatus;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.UserRepository;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -84,6 +87,11 @@ public class UserService {
         return newUser;
     }
 
+    public UserProfileDto getAuthenticatedUserProfile() {
+        User user = getAuthenticatedUser();
+        return new UserProfileDto(user);
+    }
+
     public boolean isEmailOrUserNameExists(String email, String username) {
         User user = userRepository.findByEmailOrUsername(email, username);
         if (user == null) {
@@ -98,7 +106,6 @@ public class UserService {
     }
 
     public void checkUserAlreadyAuthenticated(Authentication authentication) {
-        log.info("auth = {}", authentication);
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
             throw new UserAlreadyAuthenticatedException();
@@ -130,5 +137,31 @@ public class UserService {
         return prefix + "_" + System.currentTimeMillis() % 10000;
     }
 
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
+
+            throw new UserNotAuthenticatedException();
+        }
+
+        Object principal = authentication.getPrincipal();
+        String email;
+
+        if (principal instanceof UserDetails userDetails) {
+            email = userDetails.getUsername();
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid authentication principal");
+        }
+
+        User dbUser = userRepository.findByEmail(email);
+
+        if (dbUser == null) {
+            throw new UserNotFoundException();
+        }
+
+        return dbUser;
+    }
 }

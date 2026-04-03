@@ -42,6 +42,9 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "avatar")
+    private String avatar;
+
     @Column(name = "roles")
     private String roles;
 
@@ -69,9 +72,9 @@ public class User {
     @CreationTimestamp
     private LocalDateTime creationTimestamp;
 
-    @Column(name = "last_update_timestamp")
+    @Column(name = "update_timestamp")
     @UpdateTimestamp
-    private LocalDateTime lastUpdateTimestamp;
+    private LocalDateTime updateTimestamp;
 
     public User(String fullname, String email) {
         this.fullname = fullname;

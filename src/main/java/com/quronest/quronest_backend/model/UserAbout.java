@@ -20,6 +20,12 @@ public class UserAbout {
     @JsonProperty("about")
     private String about;
 
+    @JsonProperty("institute_name")
+    private String instituteName;
+
+    @JsonProperty("grade")
+    private String grade;
+
     @JsonProperty("social_links")
-    private List<SocialLink> items = new ArrayList<>();
+    private List<SocialLink> socialLinks = new ArrayList<>();
 }
