@@ -1,8 +1,7 @@
 package com.quronest.quronest_backend.config;
 
-import com.quronest.quronest_backend.security.CustomLogoutHandler;
-import com.quronest.quronest_backend.security.CustomUserDetailsService;
-import com.quronest.quronest_backend.security.JwtAuthenticationFilter;
+import com.quronest.quronest_backend.config.OAuthClient.OAuth2LoginConfig;
+import com.quronest.quronest_backend.security.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -32,12 +31,26 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomLogoutHandler customLogoutHandler;
+    private final OAuth2LoginConfig oAuth2LoginConfig;
+    private final SecurityParameters securityParameters;
+    private final CustomOidcUserService customOidcUserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
-                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomLogoutHandler customLogoutHandler) {
+                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomLogoutHandler customLogoutHandler,
+                          OAuth2LoginConfig oAuth2LoginConfig, SecurityParameters securityParameters,
+                          CustomOidcUserService customOidcUserService,
+                          CustomOAuth2UserService customOAuth2UserService,
+                          CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customLogoutHandler = customLogoutHandler;
+        this.oAuth2LoginConfig = oAuth2LoginConfig;
+        this.securityParameters = securityParameters;
+        this.customOidcUserService = customOidcUserService;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
 
     @Bean
@@ -57,6 +70,18 @@ public class SecurityConfig {
 
                 // userDetails service
                 .userDetailsService(userDetailsService)
+
+                // Oauth2 Login (oauth2 client)
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage(securityParameters.getLoginpage())
+                        .authorizationEndpoint(a -> a.authorizationRequestResolver(
+                                oAuth2LoginConfig.oAuth2AuthorizationRequestResolver()))
+                        .defaultSuccessUrl(securityParameters.getHomepage(), false)
+                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidcUserService)
+                                .userService(customOAuth2UserService))
+                        .successHandler(customOAuth2SuccessHandler)
+                )
+
 
                 // jwt filter chain
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

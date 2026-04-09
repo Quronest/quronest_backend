@@ -44,14 +44,14 @@ public class UserService {
         }
 
         User user = getOrCreateNewUser(registerUserDto.getEmail(), registerUserDto.getUsername(),
-                                       registerUserDto.getPassword(), registerUserDto.getFullname());
+                                       registerUserDto.getPassword(), registerUserDto.getFullname(), null);
 
         // verification mail will send from here
 
         return new BooleanDto(true);
     }
 
-    private User getOrCreateNewUser(String email, String username, String password, String fullname) {
+    private User getOrCreateNewUser(String email, String username, String password, String fullname, String avatarUrl) {
 
         // Check if user already exists which is not blacklisted
         User user = getUserByEmailNotBlacklisted(email);
@@ -81,6 +81,7 @@ public class UserService {
             }
         }
         newUser.setUsername(uniqueUsername);
+        newUser.setAvatar(avatarUrl);
         newUser.setAccountStatus(UserAccountStatus.INCOMPLETE);
 
         userRepository.save(newUser);
@@ -163,5 +164,19 @@ public class UserService {
         }
 
         return dbUser;
+    }
+
+    public User getOrCreateOAuth2User(String email, String name, String avatarUrl) {
+        User user = getOrCreateNewUser(email, null, null, name, avatarUrl);
+        setEmailVerifiedAndFinishRegistration(user);
+        return user;
+    }
+
+    public User setEmailVerifiedAndFinishRegistration(User user) {
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        }
+        return user;
     }
 }
