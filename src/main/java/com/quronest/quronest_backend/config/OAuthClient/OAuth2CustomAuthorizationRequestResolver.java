@@ -1,8 +1,8 @@
 package com.quronest.quronest_backend.config.OAuthClient;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class OAuth2CustomAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
-    private static final Logger log = LoggerFactory.getLogger(OAuth2CustomAuthorizationRequestResolver.class);
+    private static final Log log = LogFactory.getLog(OAuth2CustomAuthorizationRequestResolver.class);
     private final DefaultOAuth2AuthorizationRequestResolver defaultResolver;
     private final PathPatternRequestMatcher authorizationRequestMatcher;
 
@@ -68,7 +68,7 @@ public class OAuth2CustomAuthorizationRequestResolver implements OAuth2Authoriza
 
             } catch (Exception e) {
                 // log properly in production
-                log.info("Invalid target URL: {}", e.getMessage());
+                log.info("Invalid target URL: " + e.getMessage());
             }
         }
 

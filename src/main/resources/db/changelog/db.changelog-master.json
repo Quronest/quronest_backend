@@ -88,6 +88,24 @@
                 },
                 {
                   "column": {
+                    "name": "academic_data",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "personal_data",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "internal_data",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
                     "name": "blacklisted",
                     "type": "BOOLEAN"
                   }

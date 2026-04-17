@@ -1,7 +1,7 @@
 package com.quronest.quronest_backend.model.table;
 
-import com.quronest.quronest_backend.model.UserAbout;
-import com.quronest.quronest_backend.model.UserAccountStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.quronest.quronest_backend.model.*;
 import com.quronest.quronest_backend.validation.ValidEmail;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +22,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
     @Id
@@ -64,6 +65,18 @@ public class User {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "other_data", columnDefinition = "jsonb")
     private UserAbout about = new UserAbout();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "academic_data", columnDefinition = "jsonb")
+    private UserAcademicData academicData = new UserAcademicData();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "personal_data", columnDefinition = "jsonb")
+    private UserPersonalData personalData = new UserPersonalData();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "internal_data", columnDefinition = "jsonb")
+    private UserInternalData internalData = new UserInternalData();
 
     @Column(name = "blacklisted")
     private boolean blacklisted = false;

@@ -15,4 +15,8 @@ public class JwtConfig {
 
     private String refreshTokenSecret;
     private long refreshTokenExpiry;
+
+    private String privateKeyPath;
+    private String publicKeyPath;
+    private long serviceKyExpiration;
 }
