@@ -1,7 +1,6 @@
-package com.quronest.quronest_backend.model;
+package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.quronest.quronest_backend.dto.UserAcademicDataDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAcademicData {
+public class UserAcademicDataDto {
     @JsonProperty("institute_name")
     private String instituteName;
 
@@ -23,11 +22,4 @@ public class UserAcademicData {
 
     @JsonProperty("description")
     private String description;
-
-    public UserAcademicData(UserAcademicDataDto academicDataDto) {
-        this.instituteName = academicDataDto.getInstituteName();
-        this.grade = academicDataDto.getGrade();
-        this.course = academicDataDto.getCourse();
-        this.description = academicDataDto.getDescription();
-    }
 }

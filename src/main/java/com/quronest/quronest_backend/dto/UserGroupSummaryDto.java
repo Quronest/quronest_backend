@@ -1,7 +1,6 @@
-package com.quronest.quronest_backend.model;
+package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInternalData {
+public class UserGroupSummaryDto {
     @JsonProperty("group")
     private String group;
 
@@ -20,10 +19,4 @@ public class UserInternalData {
 
     @JsonProperty("summary")
     private String summary;
-
-    public void setUserGroupSummary(UserGroupSummaryDto userGroupSummaryDto) {
-        this.group = userGroupSummaryDto.getGroup();
-        this.phase = userGroupSummaryDto.getPhase();
-        this.summary = userGroupSummaryDto.getSummary();
-    }
 }

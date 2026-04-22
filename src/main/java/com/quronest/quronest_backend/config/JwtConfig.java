@@ -18,5 +18,5 @@ public class JwtConfig {
 
     private String privateKeyPath;
     private String publicKeyPath;
-    private long serviceKyExpiration;
+    private long serviceKyExpiration = 54000000;
 }

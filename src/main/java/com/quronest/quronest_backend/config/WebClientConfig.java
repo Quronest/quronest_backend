@@ -14,7 +14,7 @@ public class WebClientConfig {
         this.jwtService = jwtService;
     }
 
-    @Bean
+    @Bean()
     public WebClient llmWebClient() {
         return WebClient.builder()
                 .baseUrl(LLMServiceUrls.API_BASE_URI)

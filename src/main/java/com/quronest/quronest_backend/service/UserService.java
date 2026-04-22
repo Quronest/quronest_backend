@@ -1,11 +1,11 @@
 package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.config.Constants;
-import com.quronest.quronest_backend.dto.BooleanDto;
-import com.quronest.quronest_backend.dto.RegisterUserDto;
-import com.quronest.quronest_backend.dto.UserProfileDto;
+import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.exception.*;
+import com.quronest.quronest_backend.model.UserAcademicData;
 import com.quronest.quronest_backend.model.UserAccountStatus;
+import com.quronest.quronest_backend.model.UserPersonalData;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.UserRepository;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
@@ -28,10 +28,12 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LLMApiService llmApiService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LLMApiService llmApiService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.llmApiService = llmApiService;
     }
 
     public BooleanDto registerNewUser(RegisterUserDto registerUserDto, Authentication authentication) {
@@ -178,5 +180,37 @@ public class UserService {
             userRepository.save(user);
         }
         return user;
+    }
+
+    public BooleanDto addUserAcademicData(UserAcademicDataDto userAcademicDataDto) {
+        User user = getAuthenticatedUser();
+
+        UserAcademicData academicData = new UserAcademicData(userAcademicDataDto);
+        user.setAcademicData(academicData);
+
+        userRepository.save(user);
+        return new BooleanDto(true);
+    }
+
+    public BooleanDto addUserPersonalData(UserPersonalDataDto userPersonalDataDto) {
+        User user = getAuthenticatedUser();
+
+        UserPersonalData personalData = new UserPersonalData(userPersonalDataDto);
+        user.setPersonalData(personalData);
+
+        userRepository.save(user);
+        return new BooleanDto(true);
+    }
+
+    public UserGroupSummaryDto evaluateUserGroupSummary() {
+        User user = getAuthenticatedUser();
+
+        UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
+                                                                                              user.getPersonalData());
+        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
+        user.getInternalData().setUserGroupSummary(userGroupSummaryDto);
+
+        userRepository.save(user);
+        return userGroupSummaryDto;
     }
 }
