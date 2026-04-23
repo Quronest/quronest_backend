@@ -1,6 +1,8 @@
 package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.quronest.quronest_backend.model.UserGroup;
+import com.quronest.quronest_backend.model.UserPhase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +14,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserGroupSummaryDto {
     @JsonProperty("group")
-    private String group;
+    private UserGroup group;
 
     @JsonProperty("phase")
-    private String phase;
+    private UserPhase phase;
 
     @JsonProperty("summary")
     private String summary;

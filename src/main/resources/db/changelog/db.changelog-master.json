@@ -237,6 +237,140 @@
           }
         ]
       }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "user_journey",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "current_group",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "current_phase",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "current_day",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "streak_days",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_active_days",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_active_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "current_stage",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "engagement_level",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "burnout_risk",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "is_on_track",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "needs_intervention",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "summary",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "baseTableName": "user_journey",
+              "baseColumnNames": "user_id",
+              "constraintName": "fk_user_journey_user",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          }
+        ]
+      }
     }
   ]
 }

@@ -13,10 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserInternalData {
     @JsonProperty("group")
-    private String group;
+    private UserGroup group;
 
     @JsonProperty("phase")
-    private String phase;
+    private UserPhase phase;
 
     @JsonProperty("summary")
     private String summary;
