@@ -2,7 +2,7 @@ package com.quronest.quronest_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import com.quronest.quronest_backend.model.enums.SocialType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

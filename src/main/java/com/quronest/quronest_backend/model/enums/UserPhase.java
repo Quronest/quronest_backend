@@ -1,4 +1,4 @@
-package com.quronest.quronest_backend.model;
+package com.quronest.quronest_backend.model.enums;
 
 public enum UserPhase {
     PHASE_1,

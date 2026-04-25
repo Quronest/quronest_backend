@@ -368,6 +368,715 @@
               "referencedColumnNames": "id",
               "onDelete": "CASCADE"
             }
+          },
+          {
+            "createTable": {
+              "tableName": "user_journey_history",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "event_type",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "previous_group",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "previous_phase",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "new_group",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "new_phase",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "reason",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "metadata",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "triggered_by",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "confidence_score",
+                    "type": "DOUBLE PRECISION"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_user_journey_history_user",
+              "baseTableName": "user_journey_history",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createTable": {
+              "tableName": "daily_plan",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "plan_date",
+                    "type": "DATE",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "day_number",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "group",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "phase",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "title",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "is_base_plan",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "is_adjusted",
+                    "type": "BOOLEAN"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "adjustment_reason",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expected_total_time",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "actual_time_spent",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "progress_percent",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "version",
+                    "type": "INT",
+                    "defaultValueNumeric": 1
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_plan_user",
+              "baseTableName": "daily_plan",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_plan_plan_date",
+              "tableName": "daily_plan",
+              "columns": [
+                {
+                  "column": {
+                    "name": "plan_date"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_plan_day_number",
+              "tableName": "daily_plan",
+              "columns": [
+                {
+                  "column": {
+                    "name": "day_number"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createTable": {
+              "tableName": "daily_task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "daily_task_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "plan_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "order",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "title",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "task_type",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "domain_tags",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "level",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "content",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expected_total_time",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "actual_time_spent",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "progress_percent",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "is_optional",
+                    "type": "BOOLEAN",
+                    "defaultValueBoolean": false
+                  }
+                },
+                {
+                  "column": {
+                    "name": "version",
+                    "type": "INT",
+                    "defaultValueNumeric": 1
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_task_plan",
+              "baseTableName": "daily_task",
+              "baseColumnNames": "plan_id",
+              "referencedTableName": "daily_plan",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_task_user",
+              "baseTableName": "daily_task",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_plan_id",
+              "tableName": "daily_task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "plan_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_user_id",
+              "tableName": "daily_task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_status",
+              "tableName": "daily_task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "status"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_plan_order",
+              "tableName": "daily_task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "plan_id"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "order"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createTable": {
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "daily_task_log_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "task_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "plan_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "started_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_attempt_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "completed_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_time_spent",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "attempts",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "retries",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "hints_used",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "performance_data",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "confidence_level",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "ai_score",
+                    "type": "DOUBLE PRECISION"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "progress_percent",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_task_log_user",
+              "baseTableName": "daily_task_log",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_task_log_task",
+              "baseTableName": "daily_task_log",
+              "baseColumnNames": "task_id",
+              "referencedTableName": "daily_task",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_daily_task_log_plan",
+              "baseTableName": "daily_task_log",
+              "baseColumnNames": "plan_id",
+              "referencedTableName": "daily_plan",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_log_user_id",
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_log_task_id",
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "task_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_log_plan_id",
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "plan_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_log_status",
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "status"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_daily_task_log_task_user",
+              "tableName": "daily_task_log",
+              "columns": [
+                {
+                  "column": {
+                    "name": "task_id"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
           }
         ]
       }

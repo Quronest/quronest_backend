@@ -4,7 +4,7 @@ import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.exception.*;
 import com.quronest.quronest_backend.model.UserAcademicData;
-import com.quronest.quronest_backend.model.UserAccountStatus;
+import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.UserPersonalData;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.model.table.UserJourney;

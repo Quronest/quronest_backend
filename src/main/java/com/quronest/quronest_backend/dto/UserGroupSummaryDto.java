@@ -1,8 +1,8 @@
 package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.quronest.quronest_backend.model.UserGroup;
-import com.quronest.quronest_backend.model.UserPhase;
+import com.quronest.quronest_backend.model.enums.UserGroup;
+import com.quronest.quronest_backend.model.enums.UserPhase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
