@@ -698,7 +698,13 @@
                 },
                 {
                   "column": {
-                    "name": "domain_tags",
+                    "name": "domain",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "task_tags",
                     "type": "JSONB"
                   }
                 },
@@ -1073,6 +1079,236 @@
                 {
                   "column": {
                     "name": "user_id"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "domain_metrics",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "domain_metrics_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "domain",
+                    "type": "TEXT",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "sub_domains",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "engagement_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "consistency_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "problem_solving_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "completion_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "curiosity_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "affinity_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_tasks",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "completed_tasks",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "skipped_tasks",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_time_spent",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_attempts",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "total_retries",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "avg_attempts_per_task",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "avg_time_per_task",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "high_retry_count",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "skip_count",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "improvement_trend",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0.0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_activity_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_domain_metrics_user",
+              "baseTableName": "domain_metrics",
+              "baseColumnNames": "user_id",
+              "referencedTableName": "user_details",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "addUniqueConstraint": {
+              "columnNames": "user_id, domain",
+              "constraintName": "uk_domain_metrics_user_domain",
+              "tableName": "domain_metrics"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_domain_metrics_user_id",
+              "tableName": "domain_metrics",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_domain_metrics_domain",
+              "tableName": "domain_metrics",
+              "columns": [
+                {
+                  "column": {
+                    "name": "domain"
                   }
                 }
               ]

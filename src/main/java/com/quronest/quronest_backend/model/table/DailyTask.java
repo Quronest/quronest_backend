@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
+import com.quronest.quronest_backend.model.enums.Domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,8 +54,11 @@ public class DailyTask {
     @Column(name = "task_type", nullable = false)
     private DailyTaskType taskType;
 
-    @Column(name = "domain_tags")
-    private List<String> domainTags = new ArrayList<>();
+    @Column(name = "domain")
+    private Domain domain;
+
+    @Column(name = "task_tags")
+    private List<String> tags = new ArrayList<>();
 
     @Column(name = "level")
     private DailyTaskLevel level;
