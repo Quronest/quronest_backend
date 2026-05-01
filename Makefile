@@ -21,3 +21,7 @@ dev: dev-containers clean build
 
 liquibase: dev-containers
 	./mvnw liquibase:update
+
+trust-cert-ubuntu:
+	sudo cp deployment/dev/ssl/self-signed.crt /usr/local/share/ca-certificates/quronest-dev.crt
+	sudo update-ca-certificates

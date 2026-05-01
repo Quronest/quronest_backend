@@ -31,12 +31,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserAccount userAccount)) {
+            throw new ServletException("OAuth2 login succeeded with unsupported principal type: "
+                    + (principal == null ? "null" : principal.getClass().getName()));
+        }
 
-        SecurityUser principal = new SecurityUser(oauthUser.getUser());
+        SecurityUser securityUser = new SecurityUser(userAccount.getUser());
 
-        String accessToken = jwtService.generateAccessToken(principal);
-        String refreshToken = jwtService.generateRefreshToken(principal);
+        String accessToken = jwtService.generateAccessToken(securityUser);
+        String refreshToken = jwtService.generateRefreshToken(securityUser);
 
         cookieUtils.addCookie(response, "accessToken", accessToken, cookieConfig.getAccessTokenMaxAge());
         cookieUtils.addCookie(response, "refreshToken", refreshToken, cookieConfig.getRefreshTokenMaxAge());

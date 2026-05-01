@@ -37,9 +37,11 @@ public class DailyPlan {
     @Column(name = "day_number", nullable = false)
     private Integer dayNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "group")
     private UserGroup group;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "phase")
     private UserPhase phase;
 

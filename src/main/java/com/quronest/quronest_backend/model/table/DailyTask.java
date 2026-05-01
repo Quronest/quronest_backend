@@ -54,12 +54,15 @@ public class DailyTask {
     @Column(name = "task_type", nullable = false)
     private DailyTaskType taskType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "domain")
     private Domain domain;
 
-    @Column(name = "task_tags")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "task_tags", columnDefinition = "jsonb")
     private List<String> tags = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "level")
     private DailyTaskLevel level;
 

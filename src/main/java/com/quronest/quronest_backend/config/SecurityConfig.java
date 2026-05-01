@@ -66,8 +66,6 @@ public class SecurityConfig {
                         // Rest should be authenticated
                         .anyRequest().authenticated())
 
-                .authenticationProvider(authenticationProvider())
-
                 // userDetails service
                 .userDetailsService(userDetailsService)
 
@@ -99,13 +97,6 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
-        authProvider.setPasswordEncoder(new BCryptPasswordEncoder());
-        return authProvider;
     }
 
     @Bean
