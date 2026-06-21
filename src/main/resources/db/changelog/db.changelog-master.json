@@ -1379,7 +1379,7 @@
         "changes": [
           {
             "createTable": {
-              "tableName": "job",
+              "tableName": "job", 
               "columns": [
                 {
                   "column": {
@@ -1497,6 +1497,85 @@
                 {
                   "column": {
                     "name": "status"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "5",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "note",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "note_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "task_id",
+                    "type": "UUID"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "reference_text",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "message",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "addForeignKeyConstraint": {
+              "constraintName": "fk_note_task",
+              "baseTableName": "note",
+              "baseColumnNames": "task_id",
+              "referencedTableName": "daily_task",
+              "referencedColumnNames": "id",
+              "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_note_task_id",
+              "tableName": "note",
+              "columns": [
+                {
+                  "column": {
+                    "name": "task_id"
                   }
                 }
               ]

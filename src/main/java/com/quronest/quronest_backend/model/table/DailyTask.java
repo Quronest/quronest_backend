@@ -7,6 +7,7 @@ import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.Domain;
+import com.quronest.quronest_backend.utils.JsonUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -107,5 +108,20 @@ public class DailyTask {
         this.description = llmResponseDto.getDescription();
         this.taskType = llmResponseDto.getType();
         this.expectedTotalTime = llmResponseDto.getExpectedTotalMinutes();
+    }
+
+    public <T> void setContentJson(T payload) {
+        this.content = JsonUtils.toJsonNode(payload);
+    }
+
+    public <T> T getPayloadAs(Class<T> clazz) {
+        if (this.content == null) {
+            return null;
+        }
+        try {
+            return JsonUtils.fromJsonNode(this.content, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
