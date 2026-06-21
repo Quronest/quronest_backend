@@ -2,6 +2,7 @@ version: '3.1'
 
 volumes:
   quronestpostgresdev:
+  quronestrabbitmqdata:
 
 
 services:
@@ -28,3 +29,16 @@ services:
     ports:
       - "80:80"
       - "443:443"
+
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # app connection
+      - "15672:15672" # dashboard
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - quronestrabbitmqdata:/var/lib/rabbitmq
