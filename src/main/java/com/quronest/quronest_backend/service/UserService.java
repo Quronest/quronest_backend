@@ -4,12 +4,15 @@ import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.exception.*;
 import com.quronest.quronest_backend.model.UserAcademicData;
+import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.UserPersonalData;
+import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.model.table.UserJourney;
 import com.quronest.quronest_backend.repository.UserJourneyRepository;
 import com.quronest.quronest_backend.repository.UserRepository;
+import com.quronest.quronest_backend.service.rabbit.JobProducerService;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +33,15 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final LLMApiService llmApiService;
     private final UserJourneyRepository userJourneyRepository;
+    private final JobProducerService jobProducerService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LLMApiService llmApiService,
-                       UserJourneyRepository userJourneyRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       UserJourneyRepository userJourneyRepository, JobProducerService jobProducerService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.llmApiService = llmApiService;
         this.userJourneyRepository = userJourneyRepository;
+        this.jobProducerService = jobProducerService;
     }
 
     public BooleanDto registerNewUser(RegisterUserDto registerUserDto, Authentication authentication) {
@@ -207,21 +210,20 @@ public class UserService {
         return new BooleanDto(true);
     }
 
-    public UserGroupSummaryDto startUserJourney() {
+    public JobCreateResponseDto startUserJourney() {
         User user = getAuthenticatedUser();
-
-        UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
-                                                                                              user.getPersonalData());
-        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
 
         UserJourney existedJourney = userJourneyRepository.findByUser(user);
         if (existedJourney != null) {
             throw new JourneyAlreadyExistException();
         }
 
-        UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
-                                              userGroupSummaryDto.getSummary());
-        userJourneyRepository.save(journey);
-        return userGroupSummaryDto;
+        UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
+                                                                                              user.getPersonalData());
+
+        // add summary generate job
+        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY, groupSummaryGenerateDto);
+
+        return new JobCreateResponseDto(job);
     }
 }

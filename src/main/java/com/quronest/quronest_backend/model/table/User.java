@@ -20,7 +20,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
@@ -33,6 +32,7 @@ public class User {
     private String fullname;
 
     @Column(name = "email", unique = true)
+    @NonNull
     @ValidEmail
     private String email;
 

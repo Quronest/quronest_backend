@@ -3,6 +3,7 @@ package com.quronest.quronest_backend.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.model.enums.SocialType;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode
 public class SocialLink {
     @JsonProperty("link")
     private String link = "";

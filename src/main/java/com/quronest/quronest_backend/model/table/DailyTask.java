@@ -23,7 +23,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DailyTask {
     @Id

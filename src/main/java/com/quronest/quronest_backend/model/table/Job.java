@@ -2,6 +2,7 @@ package com.quronest.quronest_backend.model.table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.enums.JobType;
 import jakarta.persistence.*;
@@ -20,7 +21,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
     @Id
@@ -28,8 +28,9 @@ public class Job {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_id")
-    private UUID userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -41,7 +42,7 @@ public class Job {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private JobStatus status;
+    private JobStatus status = JobStatus.PENDING;
 
     @Column(name = "retries")
     private Integer retries = 0;
@@ -66,5 +67,45 @@ public class Job {
     @Column(name = "update_timestamp")
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
+
+    @Transient
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public <T> Job(User user, JobType type, T metadata) {
+        this.user = user;
+        this.type = type;
+        this.metadata = objectMapper.valueToTree(metadata);
+    }
+
+    public Job(User user, JobType type, JsonNode metadata) {
+        this.user = user;
+        this.type = type;
+        this.metadata = metadata;
+    }
+
+    public <T> void setMetadataObject(T payload) {
+        this.metadata = objectMapper.valueToTree(payload);
+    }
+
+    public <T> T getMetadataAs(Class<T> clazz) {
+        if (this.metadata == null) {
+            return null;
+        }
+        try {
+            return objectMapper.treeToValue(this.metadata, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void markAsCompleted() {
+        this.status = JobStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
+    }
+
+    public void markAsFailed() {
+        this.status = JobStatus.FAILED;
+        this.failedAt = LocalDateTime.now();
+    }
 
 }

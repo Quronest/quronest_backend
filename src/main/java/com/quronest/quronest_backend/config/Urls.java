@@ -4,6 +4,9 @@ public class Urls {
 
     public static final String API_BASE_URL = "/api/v1";
 
+    /* websocket path */
+    public static final String WEBSOCKET_PATH = "/ws";
+
     /* Public URLs */
     public static final String PUBLIC_STATIC_FILES = "/static/**";
     public static final String PUBLIC_AUTH_CONTROLLER = API_BASE_URL + "/auth";
