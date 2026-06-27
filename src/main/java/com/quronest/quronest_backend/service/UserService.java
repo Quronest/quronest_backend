@@ -4,15 +4,11 @@ import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.exception.*;
 import com.quronest.quronest_backend.model.UserAcademicData;
-import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.UserPersonalData;
-import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.model.table.UserJourney;
-import com.quronest.quronest_backend.repository.UserJourneyRepository;
 import com.quronest.quronest_backend.repository.UserRepository;
-import com.quronest.quronest_backend.service.rabbit.JobProducerService;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +29,10 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserJourneyRepository userJourneyRepository;
-    private final JobProducerService jobProducerService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       UserJourneyRepository userJourneyRepository, JobProducerService jobProducerService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userJourneyRepository = userJourneyRepository;
-        this.jobProducerService = jobProducerService;
     }
 
     public BooleanDto registerNewUser(RegisterUserDto registerUserDto, Authentication authentication) {
@@ -195,6 +186,7 @@ public class UserService {
 
         UserAcademicData academicData = new UserAcademicData(userAcademicDataDto);
         user.setAcademicData(academicData);
+        user.setAccountStatus(UserAccountStatus.COMPLETE);
 
         userRepository.save(user);
         return new BooleanDto(true);
@@ -205,25 +197,15 @@ public class UserService {
 
         UserPersonalData personalData = new UserPersonalData(userPersonalDataDto);
         user.setPersonalData(personalData);
+        user.setAccountStatus(UserAccountStatus.ACADEMIC_DATA_INCOMPLETE);
 
         userRepository.save(user);
         return new BooleanDto(true);
     }
 
-    public JobCreateResponseDto startUserJourney() {
+    public UserGroupSummaryDto getUserCurrentSummary() {
         User user = getAuthenticatedUser();
 
-        UserJourney existedJourney = userJourneyRepository.findByUser(user);
-        if (existedJourney != null) {
-            throw new JourneyAlreadyExistException();
-        }
-
-        UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
-                                                                                              user.getPersonalData());
-
-        // add summary generate job
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY, groupSummaryGenerateDto);
-
-        return new JobCreateResponseDto(job);
+        return new UserGroupSummaryDto(user.getCurrentSummary());
     }
 }

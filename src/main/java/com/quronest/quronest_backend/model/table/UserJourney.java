@@ -31,12 +31,12 @@ public class UserJourney {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "current_group", nullable = false)
-    private UserGroup currentGroup;
+    @Column(name = "group_name", nullable = false)
+    private UserGroup group;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "current_phase", nullable = false)
-    private UserPhase currentPhase;
+    @Column(name = "phase", nullable = false)
+    private UserPhase phase;
 
     @Column(name = "current_day")
     private Integer currentDay; // Day inside phase
@@ -79,10 +79,10 @@ public class UserJourney {
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
 
-    public UserJourney(User user, UserGroup currentGroup, UserPhase currentPhase, String summary) {
+    public UserJourney(User user, UserGroup group, UserPhase phase, String summary) {
         this.user = user;
-        this.currentGroup = currentGroup;
-        this.currentPhase = currentPhase;
+        this.group = group;
+        this.phase = phase;
         this.summary = summary;
     }
 }

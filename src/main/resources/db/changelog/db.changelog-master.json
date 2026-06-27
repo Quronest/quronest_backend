@@ -100,6 +100,12 @@
                 },
                 {
                   "column": {
+                    "name": "current_summary",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
                     "name": "internal_data",
                     "type": "JSONB"
                   }
@@ -268,7 +274,7 @@
                 },
                 {
                   "column": {
-                    "name": "current_group",
+                    "name": "group_name",
                     "type": "TEXT",
                     "constraints": {
                       "nullable": false
@@ -277,7 +283,7 @@
                 },
                 {
                   "column": {
-                    "name": "current_phase",
+                    "name": "phase",
                     "type": "TEXT",
                     "constraints": {
                       "nullable": false
@@ -367,6 +373,43 @@
               "referencedTableName": "user_details",
               "referencedColumnNames": "id",
               "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "tableName": "user_journey",
+              "indexName": "idx_user_journey_user",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "tableName": "user_journey",
+              "indexName": "idx_user_journey_user_group_name_phase",
+              "unique": true,
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "group_name"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "phase"
+                  }
+                }
+              ]
             }
           },
           {
@@ -511,7 +554,7 @@
                 },
                 {
                   "column": {
-                    "name": "group",
+                    "name": "group_name",
                     "type": "TEXT"
                   }
                 },

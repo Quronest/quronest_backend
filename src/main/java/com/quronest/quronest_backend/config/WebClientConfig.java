@@ -9,15 +9,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
     private final JwtService jwtService;
+    private final SecurityParameters securityParameters;
 
-    public WebClientConfig(JwtService jwtService) {
+    public WebClientConfig(JwtService jwtService, SecurityParameters securityParameters) {
         this.jwtService = jwtService;
+        this.securityParameters = securityParameters;
     }
 
     @Bean()
     public WebClient llmWebClient() {
         return WebClient.builder()
-                .baseUrl(LLMServiceUrls.API_BASE_URI)
+                .baseUrl(securityParameters.getLlmservicebaseurl())
                 .defaultHeader("Content-Type", "application/json")
                 .filter((request, next) -> {
                     ClientRequest newRequest = ClientRequest.from(request)

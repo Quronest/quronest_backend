@@ -16,6 +16,7 @@ public class SecurityParameters {
 
     private String corsdomain = null;
     private String frontendbaseurl = "https://quronest.com";
+    private String llmservicebaseurl = "https://quronest.com/llm/api/v1";
     private String loginpage = null;
     private String homepage = null;
 

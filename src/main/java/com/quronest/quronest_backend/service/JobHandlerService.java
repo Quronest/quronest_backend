@@ -7,27 +7,20 @@ import com.quronest.quronest_backend.exception.LLMApiResponseException;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
-import com.quronest.quronest_backend.model.table.UserJourney;
 import com.quronest.quronest_backend.repository.JobRepository;
-import com.quronest.quronest_backend.repository.UserJourneyRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class JobHandlerService {
-    private final LLMApiService llmApiService;
-    private final UserJourneyRepository userJourneyRepository;
     private final WebSocketService webSocketService;
     private final JobRepository jobRepository;
+    private final UserJourneyService userJourneyService;
 
-    public JobHandlerService(LLMApiService llmApiService,
-                             UserJourneyRepository userJourneyRepository, WebSocketService webSocketService,
-                             JobRepository jobRepository) {
-        this.llmApiService = llmApiService;
-        this.userJourneyRepository = userJourneyRepository;
+    public JobHandlerService(WebSocketService webSocketService,
+                             JobRepository jobRepository, UserJourneyService userJourneyService) {
         this.webSocketService = webSocketService;
         this.jobRepository = jobRepository;
+        this.userJourneyService = userJourneyService;
     }
 
     public void handleJob(Job job) {
@@ -37,7 +30,7 @@ public class JobHandlerService {
 
         try {
             switch (job.getType()) {
-                case LLM_GENERATE_DAILY_TASK -> completeUserSummaryGenerateJob(job);
+                case LLM_GENERATE_USER_SUMMARY -> completeUserSummaryGenerateJob(job);
             }
         } catch (JobHandleException | LLMApiResponseException e) {
             // send failed event in first failure
@@ -54,11 +47,8 @@ public class JobHandlerService {
             throw new JobHandleException("User summary generate dto not found");
         }
 
-        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
-
-        UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
-                                              userGroupSummaryDto.getSummary());
-        userJourneyRepository.save(journey);
+        // get generated summary
+        UserGroupSummaryDto userGroupSummaryDto = userJourneyService.completeUserJourneyGeneration(user, groupSummaryGenerateDto);
 
         // update job
         job.markAsCompleted();

@@ -11,6 +11,9 @@ public class Urls {
     public static final String PUBLIC_STATIC_FILES = "/static/**";
     public static final String PUBLIC_AUTH_CONTROLLER = API_BASE_URL + "/auth";
 
+    /* websocket path */
+    public static final String WEB_SOCKET_PATH = "/ws";
+
     /* swagger paths */
     public static final String PUBLIC_SWAGGER_BASE_PATH = "/swagger-ui.html";
     public static final String PUBLIC_SWAGGER_PATH = "/swagger-ui/**";
@@ -22,5 +25,6 @@ public class Urls {
             PUBLIC_SWAGGER_BASE_PATH,
             PUBLIC_SWAGGER_PATH,
             PUBLIC_SWAGGER_DATA_PATH,
+            WEB_SOCKET_PATH
     };
 }

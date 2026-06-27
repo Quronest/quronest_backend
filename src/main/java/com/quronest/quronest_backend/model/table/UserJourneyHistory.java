@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.model.table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.quronest.quronest_backend.model.enums.JourneyEventTriggerer;
 import com.quronest.quronest_backend.model.enums.JourneyEventType;
 import com.quronest.quronest_backend.model.enums.UserGroup;
@@ -61,7 +62,7 @@ public class UserJourneyHistory {
     // Flexible Metadata (scores, domain, etc.)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata", columnDefinition = "jsonb")
-    private Object metadata;
+    private JsonNode metadata;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "triggered_by")

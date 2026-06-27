@@ -1,12 +1,17 @@
 package com.quronest.quronest_backend.service.rabbit;
 
 import com.quronest.quronest_backend.config.RabbitConfig;
+import com.quronest.quronest_backend.exception.JobAlreadyExistsException;
+import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.JobRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class JobProducerService {
@@ -50,5 +55,13 @@ public class JobProducerService {
         sendNewJob(new JobEvent(job.getId(), "LLM_JOB"));
 
         return job;
+    }
+
+    public void verifyJobAlreadyExists(User user, JobType type, String message) {
+        List<JobStatus> checkStatus = List.of(JobStatus.PENDING, JobStatus.LOCKED);
+        Job job = jobRepository.findByUserAndTypeAndStatusIn(user, type, checkStatus);
+        if (job != null) {
+            throw new JobAlreadyExistsException(message);
+        }
     }
 }

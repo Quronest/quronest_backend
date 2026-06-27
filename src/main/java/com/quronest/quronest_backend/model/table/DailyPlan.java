@@ -37,7 +37,7 @@ public class DailyPlan {
     private Integer dayNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "group")
+    @Column(name = "group_name")
     private UserGroup group;
 
     @Enumerated(EnumType.STRING)

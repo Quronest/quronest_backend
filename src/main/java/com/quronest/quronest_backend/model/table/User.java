@@ -31,8 +31,7 @@ public class User {
     @Column(name = "fullname")
     private String fullname;
 
-    @Column(name = "email", unique = true)
-    @NonNull
+    @Column(name = "email", unique = true, nullable = false)
     @ValidEmail
     private String email;
 
@@ -50,7 +49,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_status")
-    private UserAccountStatus accountStatus;
+    private UserAccountStatus accountStatus = UserAccountStatus.PERSONAL_DATA_INCOMPLETE;
 
     @Column(name = "email_verified")
     private boolean emailVerified = false;
@@ -73,9 +72,14 @@ public class User {
     @Column(name = "personal_data", columnDefinition = "jsonb")
     private UserPersonalData personalData = new UserPersonalData();
 
+    // store users current group; updates on group-phase migrations
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "current_summary", columnDefinition = "jsonb")
+    private UserCurrentSummary currentSummary = new UserCurrentSummary();
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "internal_data", columnDefinition = "jsonb")
-    private UserInternalData internalData = new UserInternalData();
+    private UserInternalData internalData = null;
 
     @Column(name = "blacklisted")
     private boolean blacklisted = false;
