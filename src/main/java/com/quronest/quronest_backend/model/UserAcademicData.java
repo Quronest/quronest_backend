@@ -2,15 +2,13 @@ package com.quronest.quronest_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.dto.UserAcademicDataDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class UserAcademicData {
     @JsonProperty("institute_name")
     private String instituteName;

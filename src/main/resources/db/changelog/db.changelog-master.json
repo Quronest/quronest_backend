@@ -100,6 +100,12 @@
                 },
                 {
                   "column": {
+                    "name": "current_summary",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
                     "name": "internal_data",
                     "type": "JSONB"
                   }
@@ -268,7 +274,7 @@
                 },
                 {
                   "column": {
-                    "name": "current_group",
+                    "name": "group_name",
                     "type": "TEXT",
                     "constraints": {
                       "nullable": false
@@ -277,7 +283,7 @@
                 },
                 {
                   "column": {
-                    "name": "current_phase",
+                    "name": "phase",
                     "type": "TEXT",
                     "constraints": {
                       "nullable": false
@@ -306,6 +312,18 @@
                   "column": {
                     "name": "last_active_at",
                     "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_plan_generated_from",
+                    "type": "DATE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_plan_generated_till",
+                    "type": "DATE"
                   }
                 },
                 {
@@ -367,6 +385,43 @@
               "referencedTableName": "user_details",
               "referencedColumnNames": "id",
               "onDelete": "CASCADE"
+            }
+          },
+          {
+            "createIndex": {
+              "tableName": "user_journey",
+              "indexName": "idx_user_journey_user",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "tableName": "user_journey",
+              "indexName": "idx_user_journey_user_group_name_phase",
+              "unique": true,
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "group_name"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "phase"
+                  }
+                }
+              ]
             }
           },
           {
@@ -511,7 +566,7 @@
                 },
                 {
                   "column": {
-                    "name": "group",
+                    "name": "group_name",
                     "type": "TEXT"
                   }
                 },
@@ -668,7 +723,7 @@
                 },
                 {
                   "column": {
-                    "name": "order",
+                    "name": "task_order",
                     "type": "INT"
                   }
                 },
@@ -845,7 +900,7 @@
                 },
                 {
                   "column": {
-                    "name": "order"
+                    "name": "task_order"
                   }
                 }
               ]
@@ -1316,6 +1371,140 @@
           }
         ]
       }
+    },
+    {
+      "changeSet": {
+        "id": "4",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false,
+                      "primaryKeyName": "job_pkey"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "UUID"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "type",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "metadata",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "retries",
+                    "type": "INT",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
+                    "name": "max_retries",
+                    "type": "INT",
+                    "defaultValueNumeric": 1
+                  }
+                },
+                {
+                  "column": {
+                    "name": "result_metadata",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "completed_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "failed_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "creation_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "update_timestamp",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_job_user_id",
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_job_type",
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_job_status",
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "status"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
+

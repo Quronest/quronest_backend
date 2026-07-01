@@ -2,7 +2,10 @@ package com.quronest.quronest_backend.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -13,7 +16,10 @@ import java.util.Base64;
 import java.util.List;
 
 public class JsonUtils {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    
     private static final Gson gson = new Gson();
 
     public static <T> T fromJson(String jsonString, Class<T> t) throws JsonProcessingException {
@@ -59,6 +65,21 @@ public class JsonUtils {
     public static <T> T fromBase64EncodedToObject(String encodedString, Class<T> t) throws IOException {
         String decodedJson = new String(Base64.getDecoder().decode(encodedString), StandardCharsets.UTF_8);
         return fromJson(decodedJson, t);
+    }
+
+    public static <T> T fromJsonNode(JsonNode jsonNode, Class<T> t) {
+        try {
+            if (jsonNode == null || jsonNode.isNull()) {
+                return null;
+            }
+            return objectMapper.treeToValue(jsonNode, t);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Failed to convert JsonNode to " + t.getName(), e);
+        }
+    }
+
+    public static <T> JsonNode toJsonNode(T obj) {
+        return objectMapper.valueToTree(obj);
     }
 }
 

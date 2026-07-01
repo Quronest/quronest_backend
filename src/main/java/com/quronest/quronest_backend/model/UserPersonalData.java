@@ -2,10 +2,7 @@ package com.quronest.quronest_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.dto.UserPersonalDataDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class UserPersonalData {
     @JsonProperty("interested_domains")
     private List<String> interestedDomains = new ArrayList<>();

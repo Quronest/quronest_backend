@@ -8,7 +8,6 @@ import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.UserPersonalData;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.model.table.UserJourney;
-import com.quronest.quronest_backend.repository.UserJourneyRepository;
 import com.quronest.quronest_backend.repository.UserRepository;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
 import org.slf4j.Logger;
@@ -30,15 +29,10 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final LLMApiService llmApiService;
-    private final UserJourneyRepository userJourneyRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LLMApiService llmApiService,
-                       UserJourneyRepository userJourneyRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.llmApiService = llmApiService;
-        this.userJourneyRepository = userJourneyRepository;
     }
 
     public BooleanDto registerNewUser(RegisterUserDto registerUserDto, Authentication authentication) {
@@ -192,6 +186,7 @@ public class UserService {
 
         UserAcademicData academicData = new UserAcademicData(userAcademicDataDto);
         user.setAcademicData(academicData);
+        user.setAccountStatus(UserAccountStatus.COMPLETE);
 
         userRepository.save(user);
         return new BooleanDto(true);
@@ -202,26 +197,15 @@ public class UserService {
 
         UserPersonalData personalData = new UserPersonalData(userPersonalDataDto);
         user.setPersonalData(personalData);
+        user.setAccountStatus(UserAccountStatus.ACADEMIC_DATA_INCOMPLETE);
 
         userRepository.save(user);
         return new BooleanDto(true);
     }
 
-    public UserGroupSummaryDto startUserJourney() {
+    public UserGroupSummaryDto getUserCurrentSummary() {
         User user = getAuthenticatedUser();
 
-        UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
-                                                                                              user.getPersonalData());
-        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
-
-        UserJourney existedJourney = userJourneyRepository.findByUser(user);
-        if (existedJourney != null) {
-            throw new JourneyAlreadyExistException();
-        }
-
-        UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
-                                              userGroupSummaryDto.getSummary());
-        userJourneyRepository.save(journey);
-        return userGroupSummaryDto;
+        return new UserGroupSummaryDto(user.getCurrentSummary());
     }
 }

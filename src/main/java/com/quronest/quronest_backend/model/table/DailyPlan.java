@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.model.table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
 import com.quronest.quronest_backend.model.enums.DailyPlanStatus;
 import com.quronest.quronest_backend.model.enums.UserGroup;
 import com.quronest.quronest_backend.model.enums.UserPhase;
@@ -19,7 +20,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DailyPlan {
     @Id
@@ -38,7 +38,7 @@ public class DailyPlan {
     private Integer dayNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "group")
+    @Column(name = "group_name")
     private UserGroup group;
 
     @Enumerated(EnumType.STRING)
@@ -64,13 +64,13 @@ public class DailyPlan {
     // progress track
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private DailyPlanStatus status;
+    private DailyPlanStatus status = DailyPlanStatus.PENDING;
 
     @Column(name = "expected_total_time")
     private Integer expectedTotalTime;
 
     @Column(name = "actual_time_spent")
-    private Integer actualTimeSpent;
+    private Integer actualTimeSpent = 0;
 
     @Column(name = "progress_percent")
     private Integer progressPercent = 0;
@@ -86,4 +86,16 @@ public class DailyPlan {
     @Column(name = "update_timestamp")
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
+
+    public DailyPlan(User user, DailyPlanLLMResponseDto responseDto, LocalDate planDate, int dayNumber) {
+        this.user = user;
+        this.group = user.getCurrentSummary().getGroup();
+        this.phase = user.getCurrentSummary().getPhase();
+
+        this.title = responseDto.getTitle();
+        this.description = responseDto.getDescription();
+
+        this.planDate = planDate;
+        this.dayNumber = dayNumber;
+    }
 }

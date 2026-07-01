@@ -10,6 +10,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,7 +20,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserJourney {
     @Id
@@ -32,15 +32,15 @@ public class UserJourney {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "current_group", nullable = false)
-    private UserGroup currentGroup;
+    @Column(name = "group_name", nullable = false)
+    private UserGroup group;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "current_phase", nullable = false)
-    private UserPhase currentPhase;
+    @Column(name = "phase", nullable = false)
+    private UserPhase phase;
 
     @Column(name = "current_day")
-    private Integer currentDay; // Day inside phase
+    private Integer currentDay = 0; // Day inside phase
 
     @Column(name = "streak_days")
     private Integer streakDays = 0;
@@ -51,17 +51,24 @@ public class UserJourney {
     @Column(name = "last_active_at")
     private LocalDateTime lastActiveAt;
 
+    // Use to generate next plans
+    @Column(name = "last_plan_generated_from")
+    private LocalDate lastPlanGeneratedFrom;
+
+    @Column(name = "last_plan_generated_till")
+    private LocalDate lastPlanGeneratedTill;
+
     // AI Contexts
     @Column(name = "current_stage")
     private String currentStage;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "engagement_level")
-    private UserEngagementLevel engagementLevel;
+    private UserEngagementLevel engagementLevel = UserEngagementLevel.UNSET;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "burnout_risk")
-    private UserBurnoutRisk burnoutRisk;
+    private UserBurnoutRisk burnoutRisk = UserBurnoutRisk.UNSET;
 
     @Column(name = "is_on_track")
     private Boolean isOnTrack = true;
@@ -80,10 +87,10 @@ public class UserJourney {
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
 
-    public UserJourney(User user, UserGroup currentGroup, UserPhase currentPhase, String summary) {
+    public UserJourney(User user, UserGroup group, UserPhase phase, String summary) {
         this.user = user;
-        this.currentGroup = currentGroup;
-        this.currentPhase = currentPhase;
+        this.group = group;
+        this.phase = phase;
         this.summary = summary;
     }
 }
