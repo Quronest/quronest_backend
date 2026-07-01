@@ -1,6 +1,8 @@
 package com.quronest.quronest_backend.model.table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.quronest.quronest_backend.dto.llm.DailyTaskPlanLLMResponseDto;
 import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
@@ -26,7 +28,7 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DailyTask {
     @Id
-    @Generated
+    @GeneratedValue
     @Column(name = "id")
     private UUID id;
 
@@ -39,7 +41,7 @@ public class DailyTask {
     private User user;
 
     // Ordering inside plan
-    @Column(name = "order")
+    @Column(name = "task_order")
     private Integer order;
 
     // Basic Info
@@ -67,17 +69,17 @@ public class DailyTask {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "content", columnDefinition = "jsonb")
-    private Object content;
+    private JsonNode content;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private DailyTaskStatus status;
+    private DailyTaskStatus status = DailyTaskStatus.PENDING;
 
     @Column(name = "expected_total_time")
     private Integer expectedTotalTime;
 
     @Column(name = "actual_time_spent")
-    private Integer actualTimeSpent;
+    private Integer actualTimeSpent = 0;
 
     @Column(name = "progress_percent")
     private Integer progressPercent = 0;
@@ -97,4 +99,13 @@ public class DailyTask {
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
 
+    public DailyTask(DailyPlan plan, User user, DailyTaskPlanLLMResponseDto llmResponseDto) {
+        this.plan = plan;
+        this.user = user;
+        this.order = llmResponseDto.getTaskNumber();
+        this.title = llmResponseDto.getTitle();
+        this.description = llmResponseDto.getDescription();
+        this.taskType = llmResponseDto.getType();
+        this.expectedTotalTime = llmResponseDto.getExpectedTotalMinutes();
+    }
 }

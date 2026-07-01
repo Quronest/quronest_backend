@@ -316,6 +316,18 @@
                 },
                 {
                   "column": {
+                    "name": "last_plan_generated_from",
+                    "type": "DATE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_plan_generated_till",
+                    "type": "DATE"
+                  }
+                },
+                {
+                  "column": {
                     "name": "current_stage",
                     "type": "TEXT"
                   }
@@ -711,7 +723,7 @@
                 },
                 {
                   "column": {
-                    "name": "order",
+                    "name": "task_order",
                     "type": "INT"
                   }
                 },
@@ -888,7 +900,7 @@
                 },
                 {
                   "column": {
-                    "name": "order"
+                    "name": "task_order"
                   }
                 }
               ]

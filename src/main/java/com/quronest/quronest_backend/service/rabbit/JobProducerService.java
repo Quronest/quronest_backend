@@ -1,5 +1,6 @@
 package com.quronest.quronest_backend.service.rabbit;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.quronest.quronest_backend.config.RabbitConfig;
 import com.quronest.quronest_backend.exception.JobAlreadyExistsException;
 import com.quronest.quronest_backend.model.enums.JobStatus;
@@ -7,10 +8,10 @@ import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.JobRepository;
+import com.quronest.quronest_backend.utils.JsonUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -49,7 +50,8 @@ public class JobProducerService {
     }
 
     public <T> Job createAndSendNewJob(User user, JobType type, T payload) {
-        Job job = new Job(user, type, payload);
+        JsonNode metadata = JsonUtils.toJsonNode(payload);
+        Job job = new Job(user, type, metadata);
         jobRepository.save(job);
 
         sendNewJob(new JobEvent(job.getId(), "LLM_JOB"));

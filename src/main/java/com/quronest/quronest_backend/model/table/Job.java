@@ -1,10 +1,9 @@
 package com.quronest.quronest_backend.model.table;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.enums.JobType;
+import com.quronest.quronest_backend.utils.JsonUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
     @Id
     @GeneratedValue
@@ -68,34 +66,26 @@ public class Job {
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
 
-    @Transient
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    public <T> Job(User user, JobType type, T metadata) {
-        this.user = user;
-        this.type = type;
-        this.metadata = objectMapper.valueToTree(metadata);
-    }
-
     public Job(User user, JobType type, JsonNode metadata) {
         this.user = user;
         this.type = type;
         this.metadata = metadata;
     }
 
-    public <T> void setMetadataObject(T payload) {
-        this.metadata = objectMapper.valueToTree(payload);
+    public <T> void setMetadataAs(T metadata) {
+        this.metadata = JsonUtils.toJsonNode(metadata);
+    }
+
+    public <T> void setResultMetadataAs(T metadata) {
+        this.resultMetadata = JsonUtils.toJsonNode(metadata);
     }
 
     public <T> T getMetadataAs(Class<T> clazz) {
-        if (this.metadata == null) {
-            return null;
-        }
-        try {
-            return objectMapper.treeToValue(this.metadata, clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return JsonUtils.fromJsonNode(this.metadata, clazz);
+    }
+
+    public <T> T getResultMetadataAs(Class<T> clazz) {
+        return JsonUtils.fromJsonNode(this.resultMetadata, clazz);
     }
 
     public void markAsCompleted() {
@@ -107,5 +97,4 @@ public class Job {
         this.status = JobStatus.FAILED;
         this.failedAt = LocalDateTime.now();
     }
-
 }

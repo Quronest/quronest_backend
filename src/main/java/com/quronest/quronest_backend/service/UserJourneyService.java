@@ -2,7 +2,7 @@ package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.dto.JobCreateResponseDto;
 import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
-import com.quronest.quronest_backend.dto.UserGroupSummaryGenerateDto;
+import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
 import com.quronest.quronest_backend.dto.UserJourneyDto;
 import com.quronest.quronest_backend.exception.JourneyAlreadyExistException;
 import com.quronest.quronest_backend.exception.JourneyNotFoundException;
@@ -72,17 +72,18 @@ public class UserJourneyService {
         return userGroupSummaryDto;
     }
 
-    public UserJourneyDto getUserCurrentJourney() {
-        User user = userService.getAuthenticatedUser();
-
-        UserJourney journey = userJourneyRepository.findByUserAndGroupAndPhase(user,
-                                                                               user.getCurrentSummary().getGroup(),
-                                                                               user.getCurrentSummary()
-                                                                                       .getPhase());
-
+    public UserJourney getUserCurrentJourney(User user) {
+        UserJourney journey = userJourneyRepository.findByUserAndGroupAndPhase(user, user.getGroup(), user.getPhase());
         if (journey == null) {
             throw new JourneyNotFoundException();
         }
+
+        return journey;
+    }
+
+    public UserJourneyDto getUserCurrentJourneyProfile() {
+        User user = userService.getAuthenticatedUser();
+        UserJourney journey = getUserCurrentJourney(user);
 
         return new UserJourneyDto(journey);
     }

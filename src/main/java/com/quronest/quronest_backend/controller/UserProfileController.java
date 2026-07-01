@@ -44,7 +44,7 @@ public class UserProfileController {
 
     @GetMapping("/current-journey")
     public UserJourneyDto getUserCurrentJourney() {
-        return userJourneyService.getUserCurrentJourney();
+        return userJourneyService.getUserCurrentJourneyProfile();
     }
 
 }

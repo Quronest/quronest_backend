@@ -3,6 +3,8 @@ package com.quronest.quronest_backend.model.table;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.quronest.quronest_backend.model.*;
 import com.quronest.quronest_backend.model.enums.UserAccountStatus;
+import com.quronest.quronest_backend.model.enums.UserGroup;
+import com.quronest.quronest_backend.model.enums.UserPhase;
 import com.quronest.quronest_backend.validation.ValidEmail;
 import jakarta.persistence.*;
 import lombok.*;
@@ -95,6 +97,14 @@ public class User {
     public User(String fullname, String email) {
         this.fullname = fullname;
         this.email = email;
+    }
+
+    public UserGroup getGroup() {
+        return this.getCurrentSummary().getGroup();
+    }
+
+    public UserPhase getPhase() {
+        return this.getCurrentSummary().getPhase();
     }
 
     public boolean isProfileComplete() {

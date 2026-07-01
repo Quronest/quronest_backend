@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.service.rabbit;
 
 import com.quronest.quronest_backend.config.RabbitConfig;
+import com.quronest.quronest_backend.dto.ErrorMessageDto;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.repository.JobRepository;
@@ -34,12 +35,21 @@ public class JobConsumerService {
 
         try {
             jobHandlerService.handleJob(job);
+
+            // complete job
+            job.markAsCompleted();
+            jobRepository.save(job);
+
         } catch (Exception e) {
+            log.error("Failed to complete job -  " + event.getJobId() + ": " + e);
             // use retry
             int retry = job.getRetries() + 1;
             job.setRetries(retry);
+
+            // Job completely failed
             if (retry >= job.getMaxRetries()) {
-                // Job completely failed
+                ErrorMessageDto errorMessageDto = new ErrorMessageDto(e.getMessage(), e.getClass().getSimpleName());
+                job.setResultMetadataAs(errorMessageDto);
                 job.markAsFailed();
                 jobRepository.save(job);
 

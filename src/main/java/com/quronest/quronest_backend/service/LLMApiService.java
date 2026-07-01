@@ -1,10 +1,11 @@
 package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.config.LLMServiceUrls;
-import com.quronest.quronest_backend.dto.LLMApiResponseDto;
-import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
-import com.quronest.quronest_backend.dto.UserGroupSummaryGenerateDto;
-import com.quronest.quronest_backend.exception.InternalServerErrorException;
+import com.quronest.quronest_backend.dto.*;
+import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
+import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
+import com.quronest.quronest_backend.dto.llm.LLMApiResponseDto;
+import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
 import com.quronest.quronest_backend.exception.LLMApiResponseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 public class LLMApiService {
@@ -32,6 +35,17 @@ public class LLMApiService {
         LLMApiResponseDto<UserGroupSummaryDto> response = post(LLMServiceUrls.SUMMARY_GENERATE_URI,
                                                                groupSummaryGenerateDto, typeReference)
                 .block();
+
+        return getApiResponseData(response);
+    }
+
+    public List<DailyPlanLLMResponseDto> generateDailyPlan(DailyPlanGenerateLLMRequestDto llmRequestDto)
+            throws LLMApiResponseException {
+        ParameterizedTypeReference<LLMApiResponseDto<List<DailyPlanLLMResponseDto>>> typeReference =
+                new ParameterizedTypeReference<>() {
+                };
+        LLMApiResponseDto<List<DailyPlanLLMResponseDto>> response = post(LLMServiceUrls.DAILY_PLAN_GENERATE_URI,
+                                                                         llmRequestDto, typeReference).block();
 
         return getApiResponseData(response);
     }
@@ -55,7 +69,7 @@ public class LLMApiService {
                                 .defaultIfEmpty("Empty error body")
                                 .flatMap(errorBody -> {
                                     log.error("LLM API error - " + errorBody);
-                                    return Mono.error(new InternalServerErrorException("Something Went Wrong."));
+                                    return Mono.error(new RuntimeException("LLM API error."));
                                 })
                 )
                 .bodyToMono(typeReference);

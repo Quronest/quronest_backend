@@ -1,4 +1,4 @@
-package com.quronest.quronest_backend.dto;
+package com.quronest.quronest_backend.dto.llm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.model.UserAcademicData;

@@ -2,17 +2,16 @@ package com.quronest.quronest_backend.controller;
 
 import com.quronest.quronest_backend.config.Urls;
 import com.quronest.quronest_backend.dto.DailyPlanDto;
+import com.quronest.quronest_backend.dto.JobCreateResponseDto;
 import com.quronest.quronest_backend.service.DailyPlanService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping(Urls.API_BASE_URL + "/daily-plan")
+@RequestMapping(Urls.API_BASE_URL + "/daily-plans")
 public class DailyPlanController {
     private final DailyPlanService dailyPlanService;
 
@@ -20,8 +19,15 @@ public class DailyPlanController {
         this.dailyPlanService = dailyPlanService;
     }
 
-    @GetMapping("/generate-new")
-    public List<DailyPlanDto> generateNewDailyPlan(@RequestParam LocalDate startDate) {
-        return dailyPlanService.generateNewPlan(startDate);
+    @PostMapping("/generate-next-plans")
+    public JobCreateResponseDto generateNewDailyPlans() {
+        return dailyPlanService.generateNextPlans();
+    }
+
+    @GetMapping("/by-date-range")
+    public List<DailyPlanDto> getDailyPlansByDateRange(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return dailyPlanService.getDailyPlansByDateRange(startDate, endDate);
     }
 }
