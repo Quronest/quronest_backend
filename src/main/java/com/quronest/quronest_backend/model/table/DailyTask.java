@@ -61,6 +61,10 @@ public class DailyTask {
     private Domain domain;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "subdomains", columnDefinition = "jsonb")
+    private List<String> subdomains = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "task_tags", columnDefinition = "jsonb")
     private List<String> tags = new ArrayList<>();
 
@@ -88,9 +92,12 @@ public class DailyTask {
     @Column(name = "is_optional")
     private Boolean isOptional = false;
 
-    // Versioning
+    // Versioning ( version = 0 -> task not generated)
     @Column(name = "version")
-    private Integer version = 1;
+    private Integer version = 0;
+
+    @Column(name = "last_generated_at")
+    private LocalDateTime lastGeneratedAt;
 
     @Column(name = "creation_timestamp")
     @CreationTimestamp
@@ -114,14 +121,11 @@ public class DailyTask {
         this.content = JsonUtils.toJsonNode(payload);
     }
 
-    public <T> T getPayloadAs(Class<T> clazz) {
-        if (this.content == null) {
-            return null;
-        }
-        try {
-            return JsonUtils.fromJsonNode(this.content, clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public <T> T getContentAs(Class<T> clazz) {
+        return JsonUtils.fromJsonNode(this.content, clazz);
+    }
+
+    public void incrementVersion() {
+        this.version += 1;
     }
 }

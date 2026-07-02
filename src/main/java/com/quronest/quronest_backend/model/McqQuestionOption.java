@@ -8,10 +8,13 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class SourceUrl {
-    @JsonProperty("url")
-    private String url;
+public class McqQuestionOption {
+    @JsonProperty("id")
+    private Integer id;
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("slug")
+    private String slug;
+
+    @JsonProperty("text")
+    private String text;
 }

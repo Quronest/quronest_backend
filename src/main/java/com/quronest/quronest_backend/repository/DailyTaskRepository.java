@@ -1,5 +1,6 @@
 package com.quronest.quronest_backend.repository;
 
+import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.table.DailyPlan;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.User;
@@ -12,4 +13,8 @@ import java.util.UUID;
 @Repository
 public interface DailyTaskRepository extends JpaRepository<DailyTask, UUID> {
     List<DailyTask> findByPlanOrderByOrderAsc(DailyPlan plan);
+
+    DailyTask findByIdAndUserAndTaskType(UUID id, User user, DailyTaskType taskType);
+
+    DailyTask findByIdAndUser(UUID id, User user);
 }

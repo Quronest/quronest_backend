@@ -9,9 +9,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @EqualsAndHashCode
-public class ReadingTask {
+public class ReadingTaskContent {
     @JsonProperty("content_markdown")
     private String contentMarkdown;
 
@@ -23,4 +22,7 @@ public class ReadingTask {
 
     @JsonProperty("youtube_video_summary")
     private String youtubeVideoSummary;
+
+    @JsonProperty("questionnaires")
+    private List<McqQuestion> questionnaires;
 }

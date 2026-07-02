@@ -62,7 +62,7 @@ public class DailyPlanService {
     }
 
     @Transactional
-    public List<DailyPlanSummaryDto> completeNextDailyPlanGeneration(User user,
+    public List<DailyPlan> completeNextDailyPlanGeneration(User user,
                                                                      DailyPlanGenerateLLMRequestDto llmRequestDto) {
         UserJourney journey = userJourneyService.getUserCurrentJourney(user);
 
@@ -98,7 +98,7 @@ public class DailyPlanService {
         journey.setLastPlanGeneratedTill(planDate.minusDays(1));
         userJourneyRepository.save(journey);
 
-        return dailyPlans.stream().map(DailyPlanSummaryDto::new).toList();
+        return dailyPlans;
     }
 
     private int getNextDayNumber(User user, UserJourney journey) {

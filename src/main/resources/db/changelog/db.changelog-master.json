@@ -759,6 +759,12 @@
                 },
                 {
                   "column": {
+                    "name": "subdomains",
+                    "type": "JSONB"
+                  }
+                },
+                {
+                  "column": {
                     "name": "task_tags",
                     "type": "JSONB"
                   }
@@ -812,6 +818,12 @@
                     "name": "version",
                     "type": "INT",
                     "defaultValueNumeric": 1
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_generated_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
                   }
                 },
                 {
@@ -1379,7 +1391,7 @@
         "changes": [
           {
             "createTable": {
-              "tableName": "job", 
+              "tableName": "job",
               "columns": [
                 {
                   "column": {
