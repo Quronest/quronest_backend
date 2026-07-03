@@ -1,12 +1,12 @@
 package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.Domain;
 import com.quronest.quronest_backend.model.table.DailyTask;
+import com.quronest.quronest_backend.utils.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,7 +52,7 @@ public class DailyTaskDto {
     private DailyTaskLevel level;
 
     @JsonProperty("content")
-    private JsonNode content;
+    private Object content;
 
     @JsonProperty("status")
     private DailyTaskStatus status;
@@ -94,7 +94,7 @@ public class DailyTaskDto {
             this.domain = task.getDomain();
             this.tags = task.getTags();
             this.level = task.getLevel();
-            this.content = task.getContent();
+            this.content = JsonUtils.fromJsonNode(task.getContent(), Object.class);
             this.status = task.getStatus();
             this.expectedTotalTime = task.getExpectedTotalTime();
             this.actualTimeSpent = task.getActualTimeSpent();

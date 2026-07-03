@@ -7,6 +7,7 @@ import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.Domain;
+import com.quronest.quronest_backend.utils.JsonUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -60,6 +61,10 @@ public class DailyTask {
     private Domain domain;
 
     @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "subdomains", columnDefinition = "jsonb")
+    private List<String> subdomains = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "task_tags", columnDefinition = "jsonb")
     private List<String> tags = new ArrayList<>();
 
@@ -87,9 +92,12 @@ public class DailyTask {
     @Column(name = "is_optional")
     private Boolean isOptional = false;
 
-    // Versioning
+    // Versioning ( version = 0 -> task not generated)
     @Column(name = "version")
-    private Integer version = 1;
+    private Integer version = 0;
+
+    @Column(name = "last_generated_at")
+    private LocalDateTime lastGeneratedAt;
 
     @Column(name = "creation_timestamp")
     @CreationTimestamp
@@ -107,5 +115,21 @@ public class DailyTask {
         this.description = llmResponseDto.getDescription();
         this.taskType = llmResponseDto.getType();
         this.expectedTotalTime = llmResponseDto.getExpectedTotalMinutes();
+        this.level = llmResponseDto.getLevel();
+        this.domain = llmResponseDto.getDomain();
+        this.subdomains = llmResponseDto.getSubdomains();
+        this.tags = llmResponseDto.getTags();
+    }
+
+    public <T> void setContentJson(T payload) {
+        this.content = JsonUtils.toJsonNode(payload);
+    }
+
+    public <T> T getContentAs(Class<T> clazz) {
+        return JsonUtils.fromJsonNode(this.content, clazz);
+    }
+
+    public void incrementVersion() {
+        this.version += 1;
     }
 }

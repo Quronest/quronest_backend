@@ -2,8 +2,8 @@ package com.quronest.quronest_backend.dto.llm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
-import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.Domain;
+import com.quronest.quronest_backend.model.table.DailyTask;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,24 +16,12 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyTaskPlanLLMResponseDto {
-    @JsonProperty("task_number")
-    private Integer taskNumber;
-
+public class LLMTaskContextDto {
     @JsonProperty("title")
     private String title;
 
     @JsonProperty("description")
     private String description;
-
-    @JsonProperty("type")
-    private DailyTaskType type;
-
-    @JsonProperty("expected_total_minutes")
-    private Integer expectedTotalMinutes;
-
-    @JsonProperty("level")
-    private DailyTaskLevel level;
 
     @JsonProperty("domain")
     private Domain domain;
@@ -44,4 +32,19 @@ public class DailyTaskPlanLLMResponseDto {
     @JsonProperty("tags")
     private List<String> tags = new ArrayList<>();
 
+    @JsonProperty("level")
+    private DailyTaskLevel level;
+
+    @JsonProperty("expected_total_minutes")
+    private Integer expectedTotalMinutes;
+
+    public LLMTaskContextDto(DailyTask task) {
+        this.title = task.getTitle();
+        this.description = task.getDescription();
+        this.domain = task.getDomain();
+        this.subdomains = task.getSubdomains();
+        this.tags = task.getTags();
+        this.level = task.getLevel();
+        this.expectedTotalMinutes = task.getExpectedTotalTime();
+    }
 }

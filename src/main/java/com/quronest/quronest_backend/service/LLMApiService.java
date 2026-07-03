@@ -2,11 +2,9 @@ package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.config.LLMServiceUrls;
 import com.quronest.quronest_backend.dto.*;
-import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
-import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
-import com.quronest.quronest_backend.dto.llm.LLMApiResponseDto;
-import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
+import com.quronest.quronest_backend.dto.llm.*;
 import com.quronest.quronest_backend.exception.LLMApiResponseException;
+import com.quronest.quronest_backend.model.ReadingTaskContent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +44,16 @@ public class LLMApiService {
                 };
         LLMApiResponseDto<List<DailyPlanLLMResponseDto>> response = post(LLMServiceUrls.DAILY_PLAN_GENERATE_URI,
                                                                          llmRequestDto, typeReference).block();
+
+        return getApiResponseData(response);
+    }
+
+    public ReadingTaskContent generateReadingTask(LLMTaskGenerateContextDto taskGenerateContextDto)
+            throws LLMApiResponseException {
+        ParameterizedTypeReference<LLMApiResponseDto<ReadingTaskContent>> typeReference = new ParameterizedTypeReference<>() {
+        };
+        LLMApiResponseDto<ReadingTaskContent> response = post(LLMServiceUrls.READING_TASK_GENERATE_URI,
+                                                              taskGenerateContextDto, typeReference).block();
 
         return getApiResponseData(response);
     }
