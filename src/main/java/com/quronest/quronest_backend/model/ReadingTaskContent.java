@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ReadingTaskContent {
-    @JsonProperty("content_markdown")
-    private String contentMarkdown;
+    @JsonProperty("markdown_content")
+    private String markdownContent;
 
     @JsonProperty("sources")
     private List<SourceUrl> sources;

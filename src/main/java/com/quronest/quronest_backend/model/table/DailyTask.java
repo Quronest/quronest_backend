@@ -115,6 +115,10 @@ public class DailyTask {
         this.description = llmResponseDto.getDescription();
         this.taskType = llmResponseDto.getType();
         this.expectedTotalTime = llmResponseDto.getExpectedTotalMinutes();
+        this.level = llmResponseDto.getLevel();
+        this.domain = llmResponseDto.getDomain();
+        this.subdomains = llmResponseDto.getSubdomains();
+        this.tags = llmResponseDto.getTags();
     }
 
     public <T> void setContentJson(T payload) {

@@ -1,11 +1,16 @@
 package com.quronest.quronest_backend.dto.llm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
+import com.quronest.quronest_backend.model.enums.Domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +31,17 @@ public class DailyTaskPlanLLMResponseDto {
 
     @JsonProperty("expected_total_minutes")
     private Integer expectedTotalMinutes;
+
+    @JsonProperty("level")
+    private DailyTaskLevel level;
+
+    @JsonProperty("domain")
+    private Domain domain;
+
+    @JsonProperty("subdomains")
+    private List<String> subdomains = new ArrayList<>();
+
+    @JsonProperty("tags")
+    private List<String> tags = new ArrayList<>();
+
 }

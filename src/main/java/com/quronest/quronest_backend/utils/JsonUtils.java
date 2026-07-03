@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -19,8 +18,7 @@ public class JsonUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    
-    private static final Gson gson = new Gson();
+
 
     public static <T> T fromJson(String jsonString, Class<T> t) throws JsonProcessingException {
         return objectMapper.readValue(jsonString, t);
@@ -46,11 +44,19 @@ public class JsonUtils {
     }
 
     public static <T> String toJsonUsingGson(T obj) {
-        return gson.toJson(obj);
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize to JSON using Jackson", e);
+        }
     }
 
     public static <T> T fromJsonUsingGson(String jsonString, Class<T> t) {
-        return gson.fromJson(jsonString, t);
+        try {
+            return objectMapper.readValue(jsonString, t);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to deserialize from JSON using Jackson", e);
+        }
     }
 
     public static <T> List<T> fromJsonToList(String jsonString, Class<T> t) throws JsonProcessingException {
