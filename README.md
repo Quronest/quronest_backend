@@ -22,3 +22,6 @@ When initializing / updating the database schema, you need to update liquibase:
 ```
 make liquibase
 ```
+
+### LLM Requests processing architecture using jobs
+<img width="3883" height="2523" alt="image" src="https://github.com/user-attachments/assets/39c6d94a-b86e-41d7-b9ff-6f76541c295c" />
