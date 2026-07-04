@@ -2,7 +2,9 @@ package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.model.UserAbout;
+import com.quronest.quronest_backend.model.UserAcademicData;
 import com.quronest.quronest_backend.model.UserCurrentSummary;
+import com.quronest.quronest_backend.model.UserPersonalData;
 import com.quronest.quronest_backend.model.table.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,13 +46,13 @@ public class UserProfileDto {
     private UserAbout about = new UserAbout();
 
     @JsonProperty("personal_data")
-    private UserPersonalDataDto personalDataDto = new UserPersonalDataDto();
+    private UserPersonalData personalDataDto;
 
     @JsonProperty("academic_data")
-    private UserAcademicDataDto academicDataDto = new UserAcademicDataDto();
+    private UserAcademicData academicDataDto;
 
     @JsonProperty("current_summary")
-    private UserCurrentSummary currentSummary = new UserCurrentSummary();
+    private UserCurrentSummary currentSummary;
 
     public UserProfileDto(User user) {
         this.id = user.getId();
@@ -62,8 +64,8 @@ public class UserProfileDto {
         this.phoneVerified = user.isPhoneVerified();
         this.phone = user.getPhone();
         this.about = user.getAbout();
-        this.personalDataDto = new UserPersonalDataDto(user.getPersonalData());
-        this.academicDataDto = new UserAcademicDataDto(user.getAcademicData());
+        this.personalDataDto = user.getPersonalData();
+        this.academicDataDto = user.getAcademicData();
         this.currentSummary = user.getCurrentSummary();
     }
 }

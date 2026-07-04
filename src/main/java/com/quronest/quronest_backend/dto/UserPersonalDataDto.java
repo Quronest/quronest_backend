@@ -1,7 +1,7 @@
 package com.quronest.quronest_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.quronest.quronest_backend.model.UserPersonalData;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,19 +22,14 @@ public class UserPersonalDataDto {
     private List<String> skills = new ArrayList<>();
 
     @JsonProperty("primary_goal")
+    @Size(max = 1000, message = "Primary goal should not exceed 1000 characters.")
     private String primaryGoal;
 
     @JsonProperty("experience")
+    @Size(max = 1000, message = "Experience should not exceed 1000 characters")
     private String experience;
 
     @JsonProperty("description")
+    @Size(max = 5000, message = "Description should not exceed 5000 characters")
     private String description;
-
-    public UserPersonalDataDto(UserPersonalData personalData) {
-        this.interestedDomains = personalData.getInterestedDomains();
-        this.skills = personalData.getSkills();
-        this.primaryGoal = personalData.getPrimaryGoal();
-        this.experience = personalData.getExperience();
-        this.description = personalData.getDescription();
-    }
 }

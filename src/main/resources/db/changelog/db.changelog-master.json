@@ -1539,6 +1539,15 @@
                 },
                 {
                   "column": {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
                     "name": "task_id",
                     "type": "UUID"
                   }
@@ -1571,13 +1580,16 @@
             }
           },
           {
-            "addForeignKeyConstraint": {
-              "constraintName": "fk_note_task",
-              "baseTableName": "note",
-              "baseColumnNames": "task_id",
-              "referencedTableName": "daily_task",
-              "referencedColumnNames": "id",
-              "onDelete": "CASCADE"
+            "createIndex": {
+              "indexName": "idx_note_user_id",
+              "tableName": "note",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                }
+              ]
             }
           },
           {
@@ -1585,6 +1597,24 @@
               "indexName": "idx_note_task_id",
               "tableName": "note",
               "columns": [
+                {
+                  "column": {
+                    "name": "task_id"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_note_user_id_task_id",
+              "tableName": "note",
+              "columns": [
+                {
+                  "column": {
+                    "name": "user_id"
+                  }
+                },
                 {
                   "column": {
                     "name": "task_id"
