@@ -31,7 +31,7 @@ public class NoteController {
         return noteService.createTaskNote(taskId, noteCreateEditDto);
     }
 
-    @PutMapping("/:noteId")
+    @PatchMapping("/:noteId")
     public NoteDto editNote(@PathVariable UUID noteId, @Valid @RequestBody NoteCreateEditDto noteCreateEditDto) {
         return noteService.editNote(noteId, noteCreateEditDto);
     }

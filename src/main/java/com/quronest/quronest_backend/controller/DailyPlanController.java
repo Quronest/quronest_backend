@@ -2,7 +2,7 @@ package com.quronest.quronest_backend.controller;
 
 import com.quronest.quronest_backend.config.Urls;
 import com.quronest.quronest_backend.dto.DailyPlanDto;
-import com.quronest.quronest_backend.dto.JobCreateResponseDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.service.DailyPlanService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ public class DailyPlanController {
     }
 
     @PostMapping("/generate-next-plans")
-    public JobCreateResponseDto generateNewDailyPlans() {
+    public JobStatusDto generateNewDailyPlans() {
         return dailyPlanService.generateNextPlans();
     }
 

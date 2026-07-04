@@ -1,6 +1,6 @@
 package com.quronest.quronest_backend.service;
 
-import com.quronest.quronest_backend.dto.JobCreateResponseDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
 import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
 import com.quronest.quronest_backend.dto.UserJourneyDto;
@@ -33,7 +33,7 @@ public class UserJourneyService {
         this.userRepository = userRepository;
     }
 
-    public JobCreateResponseDto startUserJourney() {
+    public JobStatusDto startUserJourney() {
         User user = userService.getAuthenticatedUser();
 
         UserJourney existedJourney = userJourneyRepository.findByUser(user);
@@ -50,7 +50,7 @@ public class UserJourneyService {
         Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
                                                          groupSummaryGenerateDto);
 
-        return new JobCreateResponseDto(job);
+        return new JobStatusDto(job);
     }
 
     public UserGroupSummaryDto completeUserJourneyGeneration(User user,

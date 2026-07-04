@@ -2,23 +2,24 @@ package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.dto.DailyPlanSummaryDto;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
 import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskGenerateContextDto;
 import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
 import com.quronest.quronest_backend.exception.JobHandleException;
+import com.quronest.quronest_backend.exception.JobNotFoundException;
 import com.quronest.quronest_backend.exception.LLMApiResponseException;
-import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.table.DailyPlan;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.JobRepository;
-import com.quronest.quronest_backend.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class JobHandlerService {
@@ -27,16 +28,29 @@ public class JobHandlerService {
     private final UserJourneyService userJourneyService;
     private final DailyPlanService dailyPlanService;
     private final DailyTaskService dailyTaskService;
+    private final UserService userService;
 
     public JobHandlerService(WebSocketService webSocketService,
                              JobRepository jobRepository,
                              UserJourneyService userJourneyService,
-                             DailyPlanService dailyPlanService, DailyTaskService dailyTaskService) {
+                             DailyPlanService dailyPlanService, DailyTaskService dailyTaskService,
+                             UserService userService) {
         this.webSocketService = webSocketService;
         this.jobRepository = jobRepository;
         this.userJourneyService = userJourneyService;
         this.dailyPlanService = dailyPlanService;
         this.dailyTaskService = dailyTaskService;
+        this.userService = userService;
+    }
+
+    public JobStatusDto getJobStatus(UUID jobId) {
+        User user = userService.getAuthenticatedUser();
+        Job job = jobRepository.findByIdAndUser(jobId, user);
+        if (job == null) {
+            throw new JobNotFoundException();
+        }
+
+        return new JobStatusDto(job);
     }
 
     public void handleJob(Job job) {

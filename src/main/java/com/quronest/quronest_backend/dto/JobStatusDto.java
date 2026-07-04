@@ -12,14 +12,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class JobCreateResponseDto {
+public class JobStatusDto {
     @JsonProperty("job_id")
     private UUID jobId;
 
     @JsonProperty("job_status")
     private JobStatus jobStatus;
 
-    public JobCreateResponseDto(Job job) {
+    public JobStatusDto(Job job) {
         this.jobId = job.getId();
         this.jobStatus = job.getStatus();
     }

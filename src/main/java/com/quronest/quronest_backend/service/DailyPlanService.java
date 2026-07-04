@@ -1,9 +1,8 @@
 package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.dto.DailyPlanDto;
-import com.quronest.quronest_backend.dto.DailyPlanSummaryDto;
 import com.quronest.quronest_backend.dto.DailyTaskSummaryDto;
-import com.quronest.quronest_backend.dto.JobCreateResponseDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
 import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.DailyTaskPlanLLMResponseDto;
@@ -47,7 +46,7 @@ public class DailyPlanService {
         this.userJourneyRepository = userJourneyRepository;
     }
 
-    public JobCreateResponseDto generateNextPlans() {
+    public JobStatusDto generateNextPlans() {
         User user = userService.getAuthenticatedUser();
         LLMUserContextDto userContextDto = llmContextService.getUserContext(user);
         DailyPlanGenerateLLMRequestDto llmRequestDto = new DailyPlanGenerateLLMRequestDto(userContextDto);
@@ -58,7 +57,7 @@ public class DailyPlanService {
 
         Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
 
-        return new JobCreateResponseDto(job);
+        return new JobStatusDto(job);
     }
 
     @Transactional
