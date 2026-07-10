@@ -4,6 +4,7 @@ import com.quronest.quronest_backend.config.LLMServiceUrls;
 import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.dto.llm.*;
 import com.quronest.quronest_backend.exception.LLMApiResponseException;
+import com.quronest.quronest_backend.model.QuizTaskContent;
 import com.quronest.quronest_backend.model.ReadingTaskContent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,10 +51,22 @@ public class LLMApiService {
 
     public ReadingTaskContent generateReadingTask(LLMTaskGenerateContextDto taskGenerateContextDto)
             throws LLMApiResponseException {
-        ParameterizedTypeReference<LLMApiResponseDto<ReadingTaskContent>> typeReference = new ParameterizedTypeReference<>() {
+        ParameterizedTypeReference<LLMApiResponseDto<ReadingTaskContent>> typeReference =
+                new ParameterizedTypeReference<>() {
         };
         LLMApiResponseDto<ReadingTaskContent> response = post(LLMServiceUrls.READING_TASK_GENERATE_URI,
                                                               taskGenerateContextDto, typeReference).block();
+
+        return getApiResponseData(response);
+    }
+
+    public QuizTaskContent generateQuizTask(LLMTaskGenerateContextDto taskGenerateContextDto)
+            throws LLMApiResponseException {
+        ParameterizedTypeReference<LLMApiResponseDto<QuizTaskContent>> typeReference =
+                new ParameterizedTypeReference<>() {
+        };
+        LLMApiResponseDto<QuizTaskContent> response = post(LLMServiceUrls.QUIZ_TASK_GENERATE_URI,
+                                                           taskGenerateContextDto, typeReference).block();
 
         return getApiResponseData(response);
     }

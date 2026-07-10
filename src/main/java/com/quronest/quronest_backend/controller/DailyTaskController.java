@@ -17,9 +17,9 @@ public class DailyTaskController {
         this.dailyTaskService = dailyTaskService;
     }
 
-    @PostMapping("/{taskId}/reading/generate")
-    public JobStatusDto createReadingTaskGenerateJob(@PathVariable UUID taskId) {
-        return dailyTaskService.createReadingTaskGenerateJob(taskId);
+    @PostMapping("/{taskId}/generate")
+    public JobStatusDto createTaskGenerateJob(@PathVariable UUID taskId) {
+        return dailyTaskService.createTaskGenerateJob(taskId);
     }
 
     @GetMapping("/{taskId}")

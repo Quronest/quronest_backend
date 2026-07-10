@@ -10,6 +10,7 @@ import com.quronest.quronest_backend.dto.llm.UserGroupSummaryGenerateDto;
 import com.quronest.quronest_backend.exception.JobHandleException;
 import com.quronest.quronest_backend.exception.JobNotFoundException;
 import com.quronest.quronest_backend.exception.LLMApiResponseException;
+import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.table.DailyPlan;
 import com.quronest.quronest_backend.model.table.DailyTask;
@@ -63,7 +64,8 @@ public class JobHandlerService {
             switch (job.getType()) {
                 case LLM_GENERATE_USER_SUMMARY -> completeUserSummaryGenerateJob(job);
                 case LLM_GENERATE_DAILY_PLAN -> completeNextDailyPlanGenerateJob(job);
-                case LLM_GENERATE_DAILY_TASK_READING -> completeReadingTaskGenerateJob(job);
+                case LLM_GENERATE_DAILY_TASK_READING -> completeTaskGenerateJob(job, DailyTaskType.READING);
+                case LLM_GENERATE_DAILY_TASK_QUIZ -> completeTaskGenerateJob(job, DailyTaskType.QUIZ);
             }
         } catch (JobHandleException | LLMApiResponseException e) {
             // send failed event in first failure
@@ -109,18 +111,24 @@ public class JobHandlerService {
         webSocketService.sendJobCompletedUpdate(job, dailyPlanSummaryDtos);
     }
 
-    private void completeReadingTaskGenerateJob(Job job) {
+    private void completeTaskGenerateJob(Job job, DailyTaskType taskType)
+            throws JobHandleException, LLMApiResponseException {
         User user = job.getUser();
         LLMTaskGenerateContextDto taskGenerateContextDto = job.getMetadataAs(LLMTaskGenerateContextDto.class);
         if (taskGenerateContextDto == null) {
             throw new JobHandleException("Task generate context not found.");
         }
 
-        DailyTask task = dailyTaskService.completeReadingTaskGeneration(user,
-                                                                        taskGenerateContextDto);
+        DailyTask task = null;
+        switch (taskType) {
+            case READING -> task = dailyTaskService.completeReadingTaskGeneration(user, taskGenerateContextDto);
+            case QUIZ -> task = dailyTaskService.completeQuizTaskGeneration(user, taskGenerateContextDto);
+        }
 
-        job.setResultMetadata(task.getContent());
-        jobRepository.save(job);
+        if (task != null) {
+            job.setResultMetadata(task.getContent());
+            jobRepository.save(job);
+        }
 
         webSocketService.sendJobCompletedUpdate(job, new DailyTaskDto(task));
     }
