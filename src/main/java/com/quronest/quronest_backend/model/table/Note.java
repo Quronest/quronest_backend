@@ -24,6 +24,10 @@ public class Note {
     private UUID id;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "task_id")
     private DailyTask task;
 
@@ -40,4 +44,11 @@ public class Note {
     @Column(name = "update_timestamp")
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
+
+    public Note(User user, DailyTask task, String referenceText, String message) {
+        this.user = user;
+        this.task = task;
+        this.referenceText = referenceText;
+        this.message = message;
+    }
 }

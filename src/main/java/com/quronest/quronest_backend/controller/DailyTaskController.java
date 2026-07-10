@@ -2,7 +2,7 @@ package com.quronest.quronest_backend.controller;
 
 import com.quronest.quronest_backend.config.Urls;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
-import com.quronest.quronest_backend.dto.JobCreateResponseDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.service.DailyTaskService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ public class DailyTaskController {
     }
 
     @PostMapping("/{taskId}/reading/generate")
-    public JobCreateResponseDto createReadingTaskGenerateJob(@PathVariable UUID taskId) {
+    public JobStatusDto createReadingTaskGenerateJob(@PathVariable UUID taskId) {
         return dailyTaskService.createReadingTaskGenerateJob(taskId);
     }
 

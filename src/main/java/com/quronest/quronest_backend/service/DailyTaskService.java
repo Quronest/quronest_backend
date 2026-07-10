@@ -1,7 +1,7 @@
 package com.quronest.quronest_backend.service;
 
 import com.quronest.quronest_backend.dto.DailyTaskDto;
-import com.quronest.quronest_backend.dto.JobCreateResponseDto;
+import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskGenerateContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
@@ -38,7 +38,7 @@ public class DailyTaskService {
         this.llmApiService = llmApiService;
     }
 
-    public JobCreateResponseDto createReadingTaskGenerateJob(UUID taskId) {
+    public JobStatusDto createReadingTaskGenerateJob(UUID taskId) {
         User user = userService.getAuthenticatedUser();
         DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.READING);
         if (task == null) {
@@ -64,7 +64,7 @@ public class DailyTaskService {
         Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_TASK_READING,
                                                          taskGenerateContextDto);
 
-        return new JobCreateResponseDto(job);
+        return new JobStatusDto(job);
     }
 
     public DailyTask completeReadingTaskGeneration(User user,

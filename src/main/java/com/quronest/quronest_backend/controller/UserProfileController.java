@@ -33,7 +33,7 @@ public class UserProfileController {
     }
 
     @PostMapping("/start-journey")
-    public JobCreateResponseDto evaluateUserGroupSummary() {
+    public JobStatusDto evaluateUserGroupSummary() {
         return userJourneyService.startUserJourney();
     }
 
