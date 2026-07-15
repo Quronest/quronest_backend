@@ -44,4 +44,7 @@ public class DailyTaskPlanLLMResponseDto {
     @JsonProperty("tags")
     private List<String> tags = new ArrayList<>();
 
+    @JsonProperty("llm_context")
+    private String llmContext;
+
 }

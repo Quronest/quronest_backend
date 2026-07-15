@@ -78,6 +78,9 @@ public class DailyTaskDto {
     @JsonProperty("update_timestamp")
     private LocalDateTime updateTimestamp;
 
+    @JsonProperty("job_id")
+    private UUID jobId;
+
     public DailyTaskDto(DailyTask task) {
         if (task != null) {
             this.id = task.getId();
@@ -103,6 +106,7 @@ public class DailyTaskDto {
             this.version = task.getVersion();
             this.creationTimestamp = task.getCreationTimestamp();
             this.updateTimestamp = task.getUpdateTimestamp();
+            this.jobId = task.getInternalData().getJobId();
         }
     }
 }

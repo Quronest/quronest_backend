@@ -626,6 +626,12 @@
                 },
                 {
                   "column": {
+                    "name": "llm_context",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
                     "name": "progress_percent",
                     "type": "INT"
                   }
@@ -801,6 +807,12 @@
                 },
                 {
                   "column": {
+                    "name": "llm_context",
+                    "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
                     "name": "progress_percent",
                     "type": "INT",
                     "defaultValueNumeric": 0
@@ -836,6 +848,12 @@
                   "column": {
                     "name": "update_timestamp",
                     "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "internal_data",
+                    "type": "JSONB"
                   }
                 }
               ]
@@ -1562,6 +1580,12 @@
                   "column": {
                     "name": "message",
                     "type": "TEXT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "selection_anchors",
+                    "type": "JSONB"
                   }
                 },
                 {

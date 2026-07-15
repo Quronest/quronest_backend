@@ -61,6 +61,9 @@ public class DailyPlan {
     @Column(name = "adjustment_reason")
     private String adjustmentReason;
 
+    @Column(name = "llm_context")
+    private String llmContext;
+
     // progress track
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -97,5 +100,6 @@ public class DailyPlan {
 
         this.planDate = planDate;
         this.dayNumber = dayNumber;
+        this.llmContext = responseDto.getLlmContext();
     }
 }

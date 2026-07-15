@@ -51,16 +51,20 @@ public class DailyTaskService {
             throw new DailyTaskAlreadyGeneratedException();
         }
 
+        JobStatusDto jobStatusDto = new JobStatusDto();
         switch (task.getTaskType()) {
             case READING -> {
-                return createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_READING);
+                jobStatusDto = createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_READING);
             }
             case QUIZ -> {
-                return createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_QUIZ);
+                jobStatusDto = createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_QUIZ);
             }
         }
 
-        return null;
+        task.getInternalData().setJobId(jobStatusDto.getJobId());
+        dailyTaskRepository.save(task);
+
+        return jobStatusDto;
     }
 
     public JobStatusDto createTaskGenerateJob(DailyTask task, JobType jobType) {

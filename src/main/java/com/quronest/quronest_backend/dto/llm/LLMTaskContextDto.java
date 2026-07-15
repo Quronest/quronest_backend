@@ -38,6 +38,9 @@ public class LLMTaskContextDto {
     @JsonProperty("expected_total_minutes")
     private Integer expectedTotalMinutes;
 
+    @JsonProperty("llm_context")
+    private String llmContext;
+
     public LLMTaskContextDto(DailyTask task) {
         this.title = task.getTitle();
         this.description = task.getDescription();
@@ -46,5 +49,6 @@ public class LLMTaskContextDto {
         this.tags = task.getTags();
         this.level = task.getLevel();
         this.expectedTotalMinutes = task.getExpectedTotalTime();
+        this.llmContext = task.getLlmContext();
     }
 }
