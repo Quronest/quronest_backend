@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.quronest.quronest_backend.model.enums.SelectionAnchorType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,9 @@ import java.util.UUID;
 public class SelectionAnchor {
     @JsonProperty("reference_id")
     private UUID referenceId;
+
+    @JsonProperty("type")
+    private SelectionAnchorType type;
 
     @JsonProperty("block_offset")
     private BlockOffset blockOffset;
