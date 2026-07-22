@@ -5,6 +5,7 @@ import com.quronest.quronest_backend.model.UserAbout;
 import com.quronest.quronest_backend.model.UserAcademicData;
 import com.quronest.quronest_backend.model.UserCurrentSummary;
 import com.quronest.quronest_backend.model.UserPersonalData;
+import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.table.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,9 @@ public class UserProfileDto {
     @JsonProperty("phone")
     private String phone;
 
+    @JsonProperty("account_status")
+    private UserAccountStatus accountStatus;
+
     @JsonProperty("other_data")
     private UserAbout about = new UserAbout();
 
@@ -62,6 +66,7 @@ public class UserProfileDto {
         this.avatar = user.getAvatar();
         this.emailVerified = user.isEmailVerified();
         this.phoneVerified = user.isPhoneVerified();
+        this.accountStatus = user.getAccountStatus();
         this.phone = user.getPhone();
         this.about = user.getAbout();
         this.personalDataDto = user.getPersonalData();
