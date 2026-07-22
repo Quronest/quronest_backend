@@ -186,7 +186,7 @@ public class UserService {
 
         UserAcademicData academicData = new UserAcademicData(userAcademicDataDto);
         user.setAcademicData(academicData);
-        user.setAccountStatus(UserAccountStatus.COMPLETE);
+        user.setAccountStatus(UserAccountStatus.JOURNEY_START_INCOMPLETE);
 
         userRepository.save(user);
         return new BooleanDto(true);

@@ -7,6 +7,7 @@ import com.quronest.quronest_backend.dto.UserJourneyDto;
 import com.quronest.quronest_backend.exception.JourneyAlreadyExistException;
 import com.quronest.quronest_backend.exception.JourneyNotFoundException;
 import com.quronest.quronest_backend.model.enums.JobType;
+import com.quronest.quronest_backend.model.enums.UserAccountStatus;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.model.table.UserJourney;
@@ -66,6 +67,8 @@ public class UserJourneyService {
         user.getCurrentSummary().setCurrentSummary(userGroupSummaryDto);
         UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
                                               userGroupSummaryDto.getSummary());
+        user.setAccountStatus(UserAccountStatus.COMPLETE);
+
         userRepository.save(user);
         userJourneyRepository.save(journey);
 
