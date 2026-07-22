@@ -22,6 +22,9 @@ public class DailyPlanLLMResponseDto {
     @JsonProperty("day_number")
     private Integer dayNumber;
 
+    @JsonProperty("llm_context")
+    private String llmContext;
+
     @JsonProperty("tasks")
     private List<DailyTaskPlanLLMResponseDto> tasks;
 }

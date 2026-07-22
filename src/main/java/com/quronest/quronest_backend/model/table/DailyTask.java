@@ -3,6 +3,7 @@ package com.quronest.quronest_backend.model.table;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.quronest.quronest_backend.dto.llm.DailyTaskPlanLLMResponseDto;
+import com.quronest.quronest_backend.model.DailyTaskInternalData;
 import com.quronest.quronest_backend.model.enums.DailyTaskLevel;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
@@ -92,6 +93,9 @@ public class DailyTask {
     @Column(name = "is_optional")
     private Boolean isOptional = false;
 
+    @Column(name = "llm_context")
+    private String llmContext;
+
     // Versioning ( version = 0 -> task not generated)
     @Column(name = "version")
     private Integer version = 0;
@@ -107,6 +111,10 @@ public class DailyTask {
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "internal_data", columnDefinition = "jsonb")
+    private DailyTaskInternalData internalData = new DailyTaskInternalData();
+
     public DailyTask(DailyPlan plan, User user, DailyTaskPlanLLMResponseDto llmResponseDto) {
         this.plan = plan;
         this.user = user;
@@ -119,6 +127,7 @@ public class DailyTask {
         this.domain = llmResponseDto.getDomain();
         this.subdomains = llmResponseDto.getSubdomains();
         this.tags = llmResponseDto.getTags();
+        this.llmContext = llmResponseDto.getLlmContext();
     }
 
     public <T> void setContentJson(T payload) {

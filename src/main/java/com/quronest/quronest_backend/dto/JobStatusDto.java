@@ -5,6 +5,7 @@ import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.table.Job;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class JobStatusDto {
     @JsonProperty("job_id")
     private UUID jobId;

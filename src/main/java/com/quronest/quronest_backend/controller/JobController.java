@@ -19,7 +19,7 @@ public class JobController {
         this.jobHandlerService = jobHandlerService;
     }
 
-    @GetMapping("/:jobId")
+    @GetMapping("/{jobId}")
     public JobStatusDto getJobStatusById(@PathVariable UUID jobId) {
         return jobHandlerService.getJobStatus(jobId);
     }

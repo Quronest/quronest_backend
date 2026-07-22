@@ -1,12 +1,18 @@
 package com.quronest.quronest_backend.model.table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.quronest.quronest_backend.model.SelectionAnchor;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +42,10 @@ public class Note {
 
     @Column(name = "message")
     private String message;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "selection_anchors", columnDefinition = "jsonb")
+    private List<SelectionAnchor> selectionAnchors = new ArrayList<>();
 
     @Column(name = "creation_timestamp")
     @CreationTimestamp

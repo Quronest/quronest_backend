@@ -7,6 +7,7 @@ import com.quronest.quronest_backend.dto.llm.LLMTaskGenerateContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
 import com.quronest.quronest_backend.exception.DailyTaskAlreadyGeneratedException;
 import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
+import com.quronest.quronest_backend.model.QuizTaskContent;
 import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.JobType;
@@ -38,9 +39,9 @@ public class DailyTaskService {
         this.llmApiService = llmApiService;
     }
 
-    public JobStatusDto createReadingTaskGenerateJob(UUID taskId) {
+    public JobStatusDto createTaskGenerateJob(UUID taskId) {
         User user = userService.getAuthenticatedUser();
-        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.READING);
+        DailyTask task = dailyTaskRepository.findByIdAndUser(taskId, user);
         if (task == null) {
             throw new DailyTaskNotFoundException();
         }
@@ -50,18 +51,34 @@ public class DailyTaskService {
             throw new DailyTaskAlreadyGeneratedException();
         }
 
-        // verify a job already going or not
+        JobStatusDto jobStatusDto = new JobStatusDto();
+        switch (task.getTaskType()) {
+            case READING -> {
+                jobStatusDto = createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_READING);
+            }
+            case QUIZ -> {
+                jobStatusDto = createTaskGenerateJob(task, JobType.LLM_GENERATE_DAILY_TASK_QUIZ);
+            }
+        }
+
+        task.getInternalData().setJobId(jobStatusDto.getJobId());
+        dailyTaskRepository.save(task);
+
+        return jobStatusDto;
+    }
+
+    public JobStatusDto createTaskGenerateJob(DailyTask task, JobType jobType) {
         // (currently allowing only one reading job at a time for a user).
-        jobProducerService.verifyJobAlreadyExists(user, JobType.LLM_GENERATE_DAILY_TASK_READING,
-                                                  "A reading task generation is already in progress.");
+        jobProducerService.verifyJobAlreadyExists(task.getUser(), jobType,
+                                                  "A same type task generation is already in progress.");
 
         // create the llm context
         LLMTaskContextDto taskContextDto = new LLMTaskContextDto(task);
-        LLMUserContextDto userContextDto = llmContextService.getUserContext(user);
-        LLMTaskGenerateContextDto taskGenerateContextDto = new LLMTaskGenerateContextDto(taskId, taskContextDto,
+        LLMUserContextDto userContextDto = llmContextService.getUserContext(task.getUser());
+        LLMTaskGenerateContextDto taskGenerateContextDto = new LLMTaskGenerateContextDto(task.getId(), taskContextDto,
                                                                                          userContextDto);
 
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_TASK_READING,
+        Job job = jobProducerService.createAndSendNewJob(task.getUser(), jobType,
                                                          taskGenerateContextDto);
 
         return new JobStatusDto(job);
@@ -77,6 +94,27 @@ public class DailyTaskService {
 
         // generate response
         ReadingTaskContent taskContent = llmApiService.generateReadingTask(taskGenerateContextDto);
+
+        // set context to task
+        task.setContentJson(taskContent);
+        task.incrementVersion();
+        task.setLastGeneratedAt(LocalDateTime.now());
+
+        dailyTaskRepository.save(task);
+
+        return task;
+    }
+
+    public DailyTask completeQuizTaskGeneration(User user,
+                                                LLMTaskGenerateContextDto taskGenerateContextDto) {
+        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskGenerateContextDto.getTaskId(), user,
+                                                                        DailyTaskType.QUIZ);
+        if (task == null) {
+            throw new DailyTaskNotFoundException();
+        }
+
+        // generate response
+        QuizTaskContent taskContent = llmApiService.generateQuizTask(taskGenerateContextDto);
 
         // set context to task
         task.setContentJson(taskContent);

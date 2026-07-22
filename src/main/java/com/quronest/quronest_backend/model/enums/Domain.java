@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.model.enums;
 
 public enum Domain {
+    COMPETITIVE_PROGRAMMING,
     WEB_DEVELOPMENT,
     MACHINE_LEARNING,
     DATA_SCIENCE,
