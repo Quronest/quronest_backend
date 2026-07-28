@@ -83,7 +83,7 @@ public class UserService {
         }
         newUser.setUsername(uniqueUsername);
         newUser.setAvatar(avatarUrl);
-        newUser.setAccountStatus(UserAccountStatus.INCOMPLETE);
+        newUser.setAccountStatus(UserAccountStatus.PERSONAL_DATA_INCOMPLETE);
 
         userRepository.save(newUser);
         return newUser;
