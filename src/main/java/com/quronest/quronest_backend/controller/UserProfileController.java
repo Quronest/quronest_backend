@@ -23,12 +23,12 @@ public class UserProfileController {
     }
 
     @PostMapping("/academic-data")
-    public BooleanDto addUserAcademicData(@RequestBody UserAcademicDataDto userAcademicDataDto) {
+    public UserProfileDto addUserAcademicData(@RequestBody UserAcademicDataDto userAcademicDataDto) {
         return userService.addUserAcademicData(userAcademicDataDto);
     }
 
     @PostMapping("/personal-data")
-    public BooleanDto addUserPersonalData(@RequestBody UserPersonalDataDto userPersonalDataDto) {
+    public UserProfileDto addUserPersonalData(@RequestBody UserPersonalDataDto userPersonalDataDto) {
         return userService.addUserPersonalData(userPersonalDataDto);
     }
 

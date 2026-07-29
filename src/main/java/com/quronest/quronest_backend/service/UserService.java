@@ -181,7 +181,7 @@ public class UserService {
         return user;
     }
 
-    public BooleanDto addUserAcademicData(UserAcademicDataDto userAcademicDataDto) {
+    public UserProfileDto addUserAcademicData(UserAcademicDataDto userAcademicDataDto) {
         User user = getAuthenticatedUser();
 
         UserAcademicData academicData = new UserAcademicData(userAcademicDataDto);
@@ -189,10 +189,10 @@ public class UserService {
         user.setAccountStatus(UserAccountStatus.JOURNEY_START_INCOMPLETE);
 
         userRepository.save(user);
-        return new BooleanDto(true);
+        return new UserProfileDto(user);
     }
 
-    public BooleanDto addUserPersonalData(UserPersonalDataDto userPersonalDataDto) {
+    public UserProfileDto addUserPersonalData(UserPersonalDataDto userPersonalDataDto) {
         User user = getAuthenticatedUser();
 
         UserPersonalData personalData = new UserPersonalData(userPersonalDataDto);
@@ -200,7 +200,7 @@ public class UserService {
         user.setAccountStatus(UserAccountStatus.ACADEMIC_DATA_INCOMPLETE);
 
         userRepository.save(user);
-        return new BooleanDto(true);
+        return new UserProfileDto(user);
     }
 
     public UserGroupSummaryDto getUserCurrentSummary() {
