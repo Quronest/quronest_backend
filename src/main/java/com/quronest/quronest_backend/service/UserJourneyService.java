@@ -45,8 +45,12 @@ public class UserJourneyService {
         UserGroupSummaryGenerateDto groupSummaryGenerateDto = new UserGroupSummaryGenerateDto(user.getAcademicData(),
                                                                                               user.getPersonalData());
 
-        jobProducerService.verifyJobAlreadyExists(user, JobType.LLM_GENERATE_USER_SUMMARY,
-                                                  "Summary generation request already exists.");
+        // return existed job
+        Job existedJob = jobProducerService.verifyAndGetExistedJob(user, JobType.LLM_GENERATE_USER_SUMMARY);
+        if (existedJob != null) {
+            return new JobStatusDto(existedJob);
+        }
+
         // add summary generate job
         Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
                                                          groupSummaryGenerateDto);

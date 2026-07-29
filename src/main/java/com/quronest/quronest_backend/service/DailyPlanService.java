@@ -52,8 +52,10 @@ public class DailyPlanService {
         DailyPlanGenerateLLMRequestDto llmRequestDto = new DailyPlanGenerateLLMRequestDto(userContextDto);
 
         // create new job and add to queue
-        jobProducerService.verifyJobAlreadyExists(user, JobType.LLM_GENERATE_DAILY_PLAN,
-                                                  "A Daily plan request is already in progress.");
+        Job existedJob = jobProducerService.verifyAndGetExistedJob(user, JobType.LLM_GENERATE_DAILY_PLAN);
+        if (existedJob != null) {
+            return new JobStatusDto(existedJob);
+        }
 
         Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
 
@@ -62,7 +64,7 @@ public class DailyPlanService {
 
     @Transactional
     public List<DailyPlan> completeNextDailyPlanGeneration(User user,
-                                                                     DailyPlanGenerateLLMRequestDto llmRequestDto) {
+                                                           DailyPlanGenerateLLMRequestDto llmRequestDto) {
         UserJourney journey = userJourneyService.getUserCurrentJourney(user);
 
         // create llm call

@@ -69,8 +69,8 @@ public class DailyTaskService {
 
     public JobStatusDto createTaskGenerateJob(DailyTask task, JobType jobType) {
         // (currently allowing only one reading job at a time for a user).
-        jobProducerService.verifyJobAlreadyExists(task.getUser(), jobType,
-                                                  "A same type task generation is already in progress.");
+        jobProducerService.verifyExistedJobAndThrow(task.getUser(), jobType,
+                                                    "A same type task generation is already in progress.");
 
         // create the llm context
         LLMTaskContextDto taskContextDto = new LLMTaskContextDto(task);

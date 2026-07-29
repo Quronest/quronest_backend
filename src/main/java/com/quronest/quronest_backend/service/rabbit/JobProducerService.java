@@ -59,9 +59,13 @@ public class JobProducerService {
         return job;
     }
 
-    public void verifyJobAlreadyExists(User user, JobType type, String message) {
+    public Job verifyAndGetExistedJob(User user, JobType type) {
         List<JobStatus> checkStatus = List.of(JobStatus.PENDING, JobStatus.LOCKED);
-        Job job = jobRepository.findByUserAndTypeAndStatusIn(user, type, checkStatus);
+        return jobRepository.findByUserAndTypeAndStatusIn(user, type, checkStatus);
+    }
+
+    public void verifyExistedJobAndThrow(User user, JobType type, String message) {
+        Job job = verifyAndGetExistedJob(user, type);
         if (job != null) {
             throw new JobAlreadyExistsException(message);
         }
