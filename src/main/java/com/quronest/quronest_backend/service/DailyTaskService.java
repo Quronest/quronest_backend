@@ -3,6 +3,7 @@ package com.quronest.quronest_backend.service;
 import com.quronest.quronest_backend.dto.AnchorDto;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.JobStatusDto;
+import com.quronest.quronest_backend.dto.llm.LLMDailyPlanContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskGenerateContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
@@ -81,10 +82,13 @@ public class DailyTaskService {
                                                     "A same type task generation is already in progress.");
 
         // create the llm context
-        LLMTaskContextDto taskContextDto = new LLMTaskContextDto(task);
         LLMUserContextDto userContextDto = llmContextService.getUserContext(task.getUser());
+        LLMTaskContextDto taskContextDto = new LLMTaskContextDto(task);
+        LLMDailyPlanContextDto planContextDto = new LLMDailyPlanContextDto(task.getPlan());
+
         LLMTaskGenerateContextDto taskGenerateContextDto = new LLMTaskGenerateContextDto(task.getId(), taskContextDto,
-                                                                                         userContextDto);
+                                                                                         userContextDto,
+                                                                                         planContextDto);
 
         Job job = jobProducerService.createAndSendNewJob(task.getUser(), jobType,
                                                          taskGenerateContextDto);
