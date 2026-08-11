@@ -25,7 +25,4 @@ public class ReadingTaskContent {
 
     @JsonProperty("questionnaires")
     private List<McqQuestion> questionnaires;
-
-    @JsonProperty("selection_anchors")
-    private List<SelectionAnchor> selectionAnchors;
 }

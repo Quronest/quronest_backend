@@ -1,5 +1,6 @@
 package com.quronest.quronest_backend.service;
 
+import com.quronest.quronest_backend.dto.AnchorDto;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskContextDto;
@@ -14,11 +15,13 @@ import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
+import com.quronest.quronest_backend.repository.AnchorRepository;
 import com.quronest.quronest_backend.repository.DailyTaskRepository;
 import com.quronest.quronest_backend.service.rabbit.JobProducerService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,13 +33,18 @@ public class DailyTaskService {
     private final LLMContextService llmContextService;
     private final LLMApiService llmApiService;
 
+    private final List<DailyTaskType> ALLOWED_ANCHOR_TASK_TYPES = List.of(DailyTaskType.READING);
+    private final AnchorRepository anchorRepository;
+
     public DailyTaskService(DailyTaskRepository dailyTaskRepository, JobProducerService jobProducerService,
-                            UserService userService, LLMContextService llmContextService, LLMApiService llmApiService) {
+                            UserService userService, LLMContextService llmContextService, LLMApiService llmApiService,
+                            AnchorRepository anchorRepository) {
         this.dailyTaskRepository = dailyTaskRepository;
         this.jobProducerService = jobProducerService;
         this.userService = userService;
         this.llmContextService = llmContextService;
         this.llmApiService = llmApiService;
+        this.anchorRepository = anchorRepository;
     }
 
     public JobStatusDto createTaskGenerateJob(UUID taskId) {
@@ -134,7 +142,13 @@ public class DailyTaskService {
             throw new DailyTaskNotFoundException();
         }
 
-        return new DailyTaskDto(task);
+        if (!ALLOWED_ANCHOR_TASK_TYPES.contains(task.getTaskType())) {
+            return new DailyTaskDto(task);
+        }
+
+        // find anchors
+        List<AnchorDto> anchorDtos = anchorRepository.findByReferenceId(taskId).stream().map(AnchorDto::new).toList();
+        return new DailyTaskDto(task, anchorDtos);
     }
 
 }

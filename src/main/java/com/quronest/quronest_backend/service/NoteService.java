@@ -1,24 +1,22 @@
 package com.quronest.quronest_backend.service;
 
-import com.quronest.quronest_backend.dto.BooleanDto;
-import com.quronest.quronest_backend.dto.NoteCreateEditDto;
-import com.quronest.quronest_backend.dto.NoteDto;
+import com.quronest.quronest_backend.dto.*;
 import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
 import com.quronest.quronest_backend.exception.NoteNotFoundException;
+import com.quronest.quronest_backend.model.table.Anchor;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.Note;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.DailyTaskRepository;
 import com.quronest.quronest_backend.repository.NoteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @Service
 public class NoteService {
@@ -34,28 +32,39 @@ public class NoteService {
         this.noteRepository = noteRepository;
     }
 
-    public NoteDto createTaskNote(UUID taskId, NoteCreateEditDto noteCreateEditDto) {
+    @Transactional
+    public NoteDto createTaskNote(UUID taskId, NoteCreateDto noteCreateDto) {
         User user = userService.getAuthenticatedUser();
         DailyTask task = dailyTaskRepository.findByIdAndUser(taskId, user);
         if (task == null) {
             throw new DailyTaskNotFoundException();
         }
 
-        Note note = new Note(user, task, noteCreateEditDto.getReferenceText(), noteCreateEditDto.getMessage());
-        noteRepository.save(note);
+        Note note = new Note(user, task, noteCreateDto.getReferenceText(), noteCreateDto.getMessage());
+        noteRepository.saveAndFlush(note);
+
+        // create anchor
+        AnchorCreateDto anchorCreateDto = noteCreateDto.getAnchorCreateDto();
+        if (anchorCreateDto != null) {
+            Anchor anchor = new Anchor(task.getId(), anchorCreateDto.getType(), anchorCreateDto.getBlockOffset(),
+                                       anchorCreateDto.getSelectionOffset(), anchorCreateDto.getSelectedText());
+
+            note.setAnchor(anchor);
+        }
 
         return new NoteDto(note);
     }
 
-    public NoteDto editNote(UUID noteId, NoteCreateEditDto noteCreateEditDto) {
+    public NoteDto editNote(UUID noteId, NoteEditDto noteEditDto) {
         Note note = getNoteEditable(noteId);
 
-        note.setMessage(noteCreateEditDto.getMessage());
+        note.setMessage(noteEditDto.getMessage());
         noteRepository.save(note);
 
         return new NoteDto(note);
     }
 
+    @Transactional
     public BooleanDto deleteNote(UUID noteId) {
         Note note = getNoteEditable(noteId);
         noteRepository.delete(note);

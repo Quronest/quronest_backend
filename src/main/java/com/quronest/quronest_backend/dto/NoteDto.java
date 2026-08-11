@@ -28,6 +28,9 @@ public class NoteDto {
     @JsonProperty("message")
     private String message;
 
+    @JsonProperty("anchor")
+    private AnchorDto anchor;
+
     @JsonProperty("creation_timestamp")
     private LocalDateTime creationTimestamp;
 
@@ -41,6 +44,9 @@ public class NoteDto {
         }
         this.referenceText = note.getReferenceText();
         this.message = note.getMessage();
+        if (note.getAnchor() != null) {
+            this.anchor = new AnchorDto(note.getAnchor());
+        }
         this.creationTimestamp = note.getCreationTimestamp();
         this.updateTimestamp = note.getUpdateTimestamp();
     }

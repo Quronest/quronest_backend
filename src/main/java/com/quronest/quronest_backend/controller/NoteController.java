@@ -2,7 +2,8 @@ package com.quronest.quronest_backend.controller;
 
 import com.quronest.quronest_backend.config.Urls;
 import com.quronest.quronest_backend.dto.BooleanDto;
-import com.quronest.quronest_backend.dto.NoteCreateEditDto;
+import com.quronest.quronest_backend.dto.NoteCreateDto;
+import com.quronest.quronest_backend.dto.NoteEditDto;
 import com.quronest.quronest_backend.dto.NoteDto;
 import com.quronest.quronest_backend.service.NoteService;
 import jakarta.validation.Valid;
@@ -25,18 +26,18 @@ public class NoteController {
         this.noteService = noteService;
     }
 
-    @PostMapping("/:taskId")
+    @PostMapping("/{taskId}")
     public NoteDto createNewTaskNote(@PathVariable UUID taskId,
-                                     @Valid @RequestBody NoteCreateEditDto noteCreateEditDto) {
-        return noteService.createTaskNote(taskId, noteCreateEditDto);
+                                     @Valid @RequestBody NoteCreateDto noteCreateDto) {
+        return noteService.createTaskNote(taskId, noteCreateDto);
     }
 
-    @PatchMapping("/:noteId")
-    public NoteDto editNote(@PathVariable UUID noteId, @Valid @RequestBody NoteCreateEditDto noteCreateEditDto) {
-        return noteService.editNote(noteId, noteCreateEditDto);
+    @PatchMapping("/{noteId}")
+    public NoteDto editNote(@PathVariable UUID noteId, @Valid @RequestBody NoteEditDto noteEditDto) {
+        return noteService.editNote(noteId, noteEditDto);
     }
 
-    @DeleteMapping("/:noteId")
+    @DeleteMapping("/{noteId}")
     public BooleanDto deleteNote(@PathVariable UUID noteId) {
         return noteService.deleteNote(noteId);
     }

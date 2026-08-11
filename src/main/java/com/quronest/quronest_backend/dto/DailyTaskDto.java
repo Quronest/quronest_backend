@@ -81,6 +81,14 @@ public class DailyTaskDto {
     @JsonProperty("job_id")
     private UUID jobId;
 
+    @JsonProperty("anchors")
+    private List<AnchorDto> anchors;
+
+    public DailyTaskDto(DailyTask task, List<AnchorDto> anchors) {
+        this(task);
+        this.anchors = anchors;
+    }
+
     public DailyTaskDto(DailyTask task) {
         if (task != null) {
             this.id = task.getId();
