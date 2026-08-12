@@ -17,4 +17,6 @@ public interface DailyPlanRepository extends JpaRepository<DailyPlan, UUID> {
                                                                    LocalDate planDateEnd);
 
     DailyPlan findByUserAndGroupAndPhaseAndPlanDate(User user, UserGroup group, UserPhase phase, LocalDate planDate);
+
+    DailyPlan findByIdAndUser(UUID id, User user);
 }

@@ -7,6 +7,7 @@ import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
 import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.DailyTaskPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
+import com.quronest.quronest_backend.exception.DailyPlanNotFoundException;
 import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.table.*;
 import com.quronest.quronest_backend.repository.DailyPlanRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DailyPlanService {
@@ -138,5 +140,16 @@ public class DailyPlanService {
                 .map(DailyTaskSummaryDto::new).toList();
 
         return new DailyPlanDto(dailyPlan, taskSummaryDtos);
+    }
+
+    public DailyPlanDto getDailyPlanById(UUID planId) {
+        User user = userService.getAuthenticatedUser();
+        DailyPlan plan = dailyPlanRepository.findByIdAndUser(planId, user);
+
+        if (plan == null) {
+            throw new DailyPlanNotFoundException();
+        }
+
+        return getDailyPlan(plan);
     }
 }

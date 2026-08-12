@@ -17,6 +17,8 @@ import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.AnchorRepository;
+import com.quronest.quronest_backend.model.table.DailyTaskLog;
+import com.quronest.quronest_backend.repository.DailyTaskLogRepository;
 import com.quronest.quronest_backend.repository.DailyTaskRepository;
 import com.quronest.quronest_backend.service.rabbit.JobProducerService;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import java.util.UUID;
 public class DailyTaskService {
 
     private final DailyTaskRepository dailyTaskRepository;
+    private final DailyTaskLogRepository dailyTaskLogRepository;
     private final JobProducerService jobProducerService;
     private final UserService userService;
     private final LLMContextService llmContextService;
@@ -37,10 +40,13 @@ public class DailyTaskService {
     private final List<DailyTaskType> ALLOWED_ANCHOR_TASK_TYPES = List.of(DailyTaskType.READING);
     private final AnchorRepository anchorRepository;
 
-    public DailyTaskService(DailyTaskRepository dailyTaskRepository, JobProducerService jobProducerService,
+    public DailyTaskService(DailyTaskRepository dailyTaskRepository,
+                            DailyTaskLogRepository dailyTaskLogRepository,
+                            JobProducerService jobProducerService,
                             UserService userService, LLMContextService llmContextService, LLMApiService llmApiService,
                             AnchorRepository anchorRepository) {
         this.dailyTaskRepository = dailyTaskRepository;
+        this.dailyTaskLogRepository = dailyTaskLogRepository;
         this.jobProducerService = jobProducerService;
         this.userService = userService;
         this.llmContextService = llmContextService;
@@ -153,6 +159,26 @@ public class DailyTaskService {
         // find anchors
         List<AnchorDto> anchorDtos = anchorRepository.findByReferenceId(taskId).stream().map(AnchorDto::new).toList();
         return new DailyTaskDto(task, anchorDtos);
+    }
+
+    public DailyTaskLog getOrCreateTaskLog(DailyTask task, User user) {
+        DailyTaskLog taskLog = dailyTaskLogRepository.findByTaskAndUser(task, user);
+        if (taskLog == null) {
+            taskLog = new DailyTaskLog();
+            taskLog.setTask(task);
+            taskLog.setUser(user);
+            if (task != null) {
+                taskLog.setPlan(task.getPlan());
+                taskLog.setStatus(task.getStatus());
+            }
+            taskLog.setStartedAt(LocalDateTime.now());
+            taskLog.setAttempts(0);
+            taskLog.setTotalTimeSpent(0);
+            taskLog.setMaxScore(0.0);
+            taskLog.setProgressPercent(0);
+            dailyTaskLogRepository.save(taskLog);
+        }
+        return taskLog;
     }
 
 }

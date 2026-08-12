@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.quronest.quronest_backend.utils.JsonUtils;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -67,7 +69,7 @@ public class DailyTaskLog {
     // Performance (Flexible for all task types)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "performance_data", columnDefinition = "jsonb")
-    private Object performanceData;
+    private JsonNode performanceData;
 
     @Column(name = "confidence_level")
     private Integer confidenceLevel; // 1–5
@@ -75,6 +77,9 @@ public class DailyTaskLog {
     // AI Evaluation
     @Column(name = "ai_score")
     private Double aiScore;
+
+    @Column(name = "max_score")
+    private Double maxScore = 0.0;
 
     @Column(name = "progress_percent")
     private Integer progressPercent = 0;
@@ -86,4 +91,33 @@ public class DailyTaskLog {
     @Column(name = "update_timestamp")
     @UpdateTimestamp
     private LocalDateTime updateTimestamp;
+
+    public <T> void setPerformanceDataJson(T payload) {
+        this.performanceData = JsonUtils.toJsonNode(payload);
+    }
+
+    public <T> T getPerformanceDataAs(Class<T> clazz) {
+        return JsonUtils.fromJsonNode(this.performanceData, clazz);
+    }
+
+    public DailyTaskLog(User user, DailyTask task, Integer totalTimeSpent,
+                        Double aiScore, Integer progressPercent, Boolean passed,
+                        Object performanceData) {
+        this.user = user;
+        this.task = task;
+        if (task != null) {
+            this.plan = task.getPlan();
+            this.status = task.getStatus();
+        }
+        this.totalTimeSpent = totalTimeSpent;
+        this.aiScore = aiScore;
+        this.progressPercent = progressPercent;
+        this.lastAttemptAt = LocalDateTime.now();
+        if (Boolean.TRUE.equals(passed)) {
+            this.completedAt = LocalDateTime.now();
+        }
+        if (performanceData != null) {
+            this.performanceData = JsonUtils.toJsonNode(performanceData);
+        }
+    }
 }

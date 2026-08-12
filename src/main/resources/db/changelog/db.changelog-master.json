@@ -1049,6 +1049,13 @@
                 },
                 {
                   "column": {
+                    "name": "max_score",
+                    "type": "DOUBLE PRECISION",
+                    "defaultValueNumeric": 0
+                  }
+                },
+                {
+                  "column": {
                     "name": "progress_percent",
                     "type": "INT",
                     "defaultValueNumeric": 0
