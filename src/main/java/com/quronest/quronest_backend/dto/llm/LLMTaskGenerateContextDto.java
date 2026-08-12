@@ -20,7 +20,7 @@ public class LLMTaskGenerateContextDto {
     private LLMTaskContextDto taskContext;
 
     @JsonProperty("user_context")
-    private LLMUserContextDto usesContext;
+    private LLMUserContextDto userContext;
 
     @JsonProperty("plan_context")
     private LLMDailyPlanContextDto planContext;
