@@ -12,7 +12,7 @@ class LLMTaskGenerateContextDtoTest {
     @Test
     void testSerializationAndDeserializationInJobMetadata() {
         UUID taskId = UUID.randomUUID();
-        LLMTaskContextDto taskContext = new LLMTaskContextDto();
+        LLMTaskSummaryContextDto taskContext = new LLMTaskSummaryContextDto();
         taskContext.setTitle("Test Task Title");
 
         LLMUserContextDto userContext = new LLMUserContextDto();

@@ -87,5 +87,9 @@ public class JsonUtils {
     public static <T> JsonNode toJsonNode(T obj) {
         return objectMapper.valueToTree(obj);
     }
+
+    public static JsonNode readTree(String jsonString) throws JsonProcessingException {
+        return objectMapper.readTree(jsonString);
+    }
 }
 

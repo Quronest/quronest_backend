@@ -6,4 +6,5 @@ public class LLMServiceUrls {
     public static String DAILY_PLAN_GENERATE_URI = "/tasks/generate-daily-plan";
     public static String READING_TASK_GENERATE_URI = "/tasks/generate-reading-task";
     public static String QUIZ_TASK_GENERATE_URI = "/tasks/generate-quiz-task";
+    public static String ASSISTANT_CHAT_URI = "/assistant/assistant/chat-stream";
 }

@@ -48,7 +48,5 @@ public class AnchorDto {
         this.blockOffset = anchor.getBlockOffset();
         this.selectionOffset = anchor.getSelectionOffset();
         this.selectedText = anchor.getSelectedText();
-        this.creationTimestamp = anchor.getCreationTimestamp();
-        this.updateTimestamp = anchor.getUpdateTimestamp();
     }
 }

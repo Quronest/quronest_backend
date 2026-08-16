@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,7 +83,7 @@ public class DailyTaskDto {
     private UUID jobId;
 
     @JsonProperty("anchors")
-    private List<AnchorDto> anchors;
+    private List<AnchorDto> anchors = new ArrayList<>();
 
     public DailyTaskDto(DailyTask task, List<AnchorDto> anchors) {
         this(task);
