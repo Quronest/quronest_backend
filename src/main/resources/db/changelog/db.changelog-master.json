@@ -1589,7 +1589,7 @@
                 {
                   "column": {
                     "name": "selected_text",
-                    "type": "JSONB"
+                    "type": "TEXT"
                   }
                 },
                 {

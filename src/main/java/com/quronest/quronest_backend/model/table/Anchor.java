@@ -42,7 +42,6 @@ public class Anchor {
     @Column(name = "selection_offset", columnDefinition = "jsonb")
     private AnchorOffset selectionOffset;
 
-    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "selected_text")
     private String selectedText;
 
