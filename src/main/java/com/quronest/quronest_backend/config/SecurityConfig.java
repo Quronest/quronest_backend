@@ -61,6 +61,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC,
+                                                jakarta.servlet.DispatcherType.ERROR).permitAll()
                         // Permit public urls
                         .requestMatchers(Urls.ALL_PUBLIC_URLS).permitAll()
                         // Rest should be authenticated
