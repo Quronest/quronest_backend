@@ -3,14 +3,16 @@ package com.quronest.quronest_backend.service;
 import com.quronest.quronest_backend.config.CookieConfig;
 import com.quronest.quronest_backend.dto.BooleanDto;
 import com.quronest.quronest_backend.dto.LoginUserDto;
+import com.quronest.quronest_backend.dto.TokenPair;
 import com.quronest.quronest_backend.exception.InvalidLoginCredentialsException;
 import com.quronest.quronest_backend.exception.UserNotFoundException;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.UserRepository;
 import com.quronest.quronest_backend.security.CookieUtils;
-import com.quronest.quronest_backend.security.JwtService;
 import com.quronest.quronest_backend.security.SecurityUser;
+import com.quronest.quronest_backend.security.TokenService;
 import com.quronest.quronest_backend.utils.EmailNormalizer;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,19 +30,23 @@ public class UserAuthService {
     private static final Logger log = LoggerFactory.getLogger(UserAuthService.class);
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final TokenService tokenService;
     private final UserRepository userRepository;
     private final CookieConfig cookieConfig;
     private final CookieUtils cookieUtils;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserAuthService(UserService userService, AuthenticationManager authenticationManager, JwtService jwtService,
-                           UserRepository userRepository, CookieConfig cookieConfig, CookieUtils cookieUtils) {
+    public UserAuthService(UserService userService, AuthenticationManager authenticationManager,
+                           TokenService tokenService, UserRepository userRepository,
+                           CookieConfig cookieConfig, CookieUtils cookieUtils,
+                           RefreshTokenService refreshTokenService) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
+        this.tokenService = tokenService;
         this.userRepository = userRepository;
         this.cookieConfig = cookieConfig;
         this.cookieUtils = cookieUtils;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public BooleanDto userLogin(LoginUserDto loginUserDto, Authentication authentication,
@@ -57,7 +63,6 @@ public class UserAuthService {
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(normalizedEmail,
                                                                                               loginUserDto.getPassword());
 
-
         try {
             authenticationManager.authenticate(authReq);
         } catch (AuthenticationException e) {
@@ -67,14 +72,21 @@ public class UserAuthService {
         // get principle
         UserDetails principle = new SecurityUser(user);
 
-        // Generate JWT tokens
-        String accessToken = jwtService.generateAccessToken(principle);
-        String refreshToken = jwtService.generateRefreshToken(principle);
+        // Generate token pair
+        TokenPair tokenPair = tokenService.generateTokenPair(principle);
+
+        // Add a fresh refreshToken entry for this session
+        refreshTokenService.createRefreshToken(user, tokenPair.getRefreshToken());
 
         // set cookies
-        cookieUtils.addCookie(response, "accessToken", accessToken, cookieConfig.getAccessTokenMaxAge());
-        cookieUtils.addCookie(response, "refreshToken", refreshToken, cookieConfig.getRefreshTokenMaxAge());
+        cookieUtils.addCookie(response, "accessToken", tokenPair.getAccessToken(), cookieConfig.getAccessTokenMaxAge());
+        cookieUtils.addCookie(response, "refreshToken", tokenPair.getRefreshToken(), cookieConfig.getRefreshTokenMaxAge());
 
+        return new BooleanDto(true);
+    }
+
+    public BooleanDto logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        refreshTokenService.revokeRefreshToken(request, response);
         return new BooleanDto(true);
     }
 

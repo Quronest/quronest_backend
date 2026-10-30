@@ -13,7 +13,6 @@ public class JwtConfig {
     private String accessTokenSecret;
     private long accessTokenExpiry;
 
-    private String refreshTokenSecret;
     private long refreshTokenExpiry;
 
     private String privateKeyPath;

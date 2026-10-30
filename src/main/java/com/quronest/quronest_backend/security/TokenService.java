@@ -2,6 +2,8 @@ package com.quronest.quronest_backend.security;
 
 import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.config.JwtConfig;
+import com.quronest.quronest_backend.dto.TokenPair;
+import com.quronest.quronest_backend.utils.SecurityUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -17,6 +19,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,15 +28,23 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class TokenService {
 
     private final JwtConfig jwtConfig;
 
-    public JwtService(JwtConfig jwtConfig) {
+    public TokenService(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
     }
 
-    // HMAC tokens
+    // Token Pair Generation
+
+    public TokenPair generateTokenPair(UserDetails user) {
+        String accessToken = generateAccessToken(user);
+        String refreshToken = SecurityUtils.generateRefreshToken();
+        return new TokenPair(accessToken, refreshToken);
+    }
+
+    // HMAC Tokens
 
     public String extractUsername(String token) {
         return extractClaim(token, jwtConfig.getAccessTokenSecret(), Claims::getSubject);
@@ -48,14 +60,17 @@ public class JwtService {
                               jwtConfig.getAccessTokenExpiry());
     }
 
-    public String generateRefreshToken(UserDetails user) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("type", "refresh");
-        return buildHMACToken(claims, user, jwtConfig.getRefreshTokenSecret(), jwtConfig.getRefreshTokenExpiry());
-    }
-
     public boolean isAccessTokenValid(String token, UserDetails user) {
         return isTokenValid(token, jwtConfig.getAccessTokenSecret(), user);
+    }
+
+    public boolean isTokenValid(String token, String secretKey, UserDetails user) {
+        final String username = extractClaim(token, secretKey, Claims::getSubject);
+        return (username != null && username.equals(user.getUsername())) && !isTokenExpired(token, secretKey);
+    }
+
+    public LocalDateTime calculateRefreshTokenExpiryDate() {
+        return LocalDateTime.now().plus(Duration.ofMillis(jwtConfig.getRefreshTokenExpiry()));
     }
 
     private String buildHMACToken(Map<String, Object> extraClaims, UserDetails user, String secretKey,
@@ -70,20 +85,15 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, String secretKey, UserDetails user) {
-        final String username = extractUsername(token);
-        return (username.equals(user.getUsername())) && !isTokenExpired(token, secretKey);
-    }
-
     private boolean isTokenExpired(String token, String secretKey) {
         return extractExpiration(token, secretKey).before(new Date());
     }
 
-    private Date extractExpiration(String token, String secretKey) {
+    public Date extractExpiration(String token, String secretKey) {
         return extractClaim(token, secretKey, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token, String secretKey) {
+    public Claims extractAllClaims(String token, String secretKey) {
         return Jwts
                 .parser()
                 .verifyWith(getHMACSignInKey(secretKey))
@@ -96,7 +106,6 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 
     // RSA Tokens
 
@@ -117,7 +126,7 @@ public class JwtService {
                 .compact();
     }
 
-    // load rsa keys
+    // Load RSA keys
     private PrivateKey getPrivateKey() {
         try {
             String key = new String(Files.readAllBytes(Paths.get(jwtConfig.getPrivateKeyPath())));

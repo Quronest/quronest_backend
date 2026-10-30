@@ -3,6 +3,7 @@ package com.quronest.quronest_backend.security;
 import com.quronest.quronest_backend.config.Constants;
 import com.quronest.quronest_backend.config.CookieConfig;
 import com.quronest.quronest_backend.config.SecurityParameters;
+import com.quronest.quronest_backend.dto.TokenPair;
 import com.quronest.quronest_backend.model.table.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -19,9 +20,9 @@ class CustomOAuth2SuccessHandlerTest {
 
     @Test
     void acceptsAnyOAuthPrincipalThatExposesUserAccount() throws Exception {
-        JwtService jwtService = mock(JwtService.class);
-        when(jwtService.generateAccessToken(any(UserDetails.class))).thenReturn("access-token");
-        when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refresh-token");
+        TokenService tokenService = mock(TokenService.class);
+        when(tokenService.generateTokenPair(any(UserDetails.class)))
+                .thenReturn(new TokenPair("access-token", "refresh-token"));
 
         CookieConfig cookieConfig = new CookieConfig();
         CookieUtils cookieUtils = new CookieUtils(cookieConfig);
@@ -29,7 +30,7 @@ class CustomOAuth2SuccessHandlerTest {
         securityParameters.setHomepage("https://localhost.quronest.com/home");
 
         CustomOAuth2SuccessHandler handler =
-                new CustomOAuth2SuccessHandler(jwtService, cookieUtils, cookieConfig, securityParameters);
+                new CustomOAuth2SuccessHandler(tokenService, cookieUtils, cookieConfig, securityParameters);
 
         User user = new User("Test User", "test@example.com");
         user.setRoles(Constants.USER_ROLE_DEFAULT);

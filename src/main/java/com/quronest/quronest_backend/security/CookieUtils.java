@@ -32,6 +32,14 @@ public class CookieUtils {
                 .filter(value -> value != null && !value.isBlank()).map(String::trim).findFirst();
     }
 
+    public Optional<String> getAccessToken(HttpServletRequest request) {
+        return getCookieValue(request, "accessToken");
+    }
+
+    public Optional<String> getRefreshToken(HttpServletRequest request) {
+        return getCookieValue(request, "refreshToken");
+    }
+
     public void addCookie(HttpServletResponse response, String name, String value, int maxAgeSeconds) {
         response.addHeader("Set-Cookie", buildCookie(name, value, maxAgeSeconds));
     }
