@@ -20,6 +20,6 @@ public class NoteCreateDto {
     @Size(max = 10000, message = "Message should not exceed 10000 characters")
     private String message;
 
-    @JsonProperty("anchor")
+    @JsonProperty(value = "anchor")
     private AnchorCreateDto anchorCreateDto;
 }

@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -53,7 +55,7 @@ public class LLMApiService {
             throws LLMApiResponseException {
         ParameterizedTypeReference<LLMApiResponseDto<ReadingTaskContent>> typeReference =
                 new ParameterizedTypeReference<>() {
-        };
+                };
         LLMApiResponseDto<ReadingTaskContent> response = post(LLMServiceUrls.READING_TASK_GENERATE_URI,
                                                               taskGenerateContextDto, typeReference).block();
 
@@ -64,12 +66,17 @@ public class LLMApiService {
             throws LLMApiResponseException {
         ParameterizedTypeReference<LLMApiResponseDto<QuizTaskContent>> typeReference =
                 new ParameterizedTypeReference<>() {
-        };
+                };
         LLMApiResponseDto<QuizTaskContent> response = post(LLMServiceUrls.QUIZ_TASK_GENERATE_URI,
                                                            taskGenerateContextDto, typeReference).block();
 
         return getApiResponseData(response);
     }
+
+    public Flux<String> getAssistantChatStream(LLMAssistantChatContextDto assistantChatContextDto) {
+        return postStream(LLMServiceUrls.ASSISTANT_CHAT_URI, assistantChatContextDto, String.class);
+    }
+
 
     private <T> T getApiResponseData(LLMApiResponseDto<T> response) throws LLMApiResponseException {
         if (response == null || !response.isSuccess()) {
@@ -79,20 +86,31 @@ public class LLMApiService {
         return response.getData();
     }
 
+    private <T> Flux<T> postStream(String uri, Object body, Class<T> elementClass) {
+        return webClient.post()
+                .uri(uri)
+                .bodyValue(body)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, this::handleApiError)
+                .bodyToFlux(elementClass);
+    }
+
     private <T> Mono<LLMApiResponseDto<T>> post(String uri, Object body,
                                                 ParameterizedTypeReference<LLMApiResponseDto<T>> typeReference) {
         return webClient.post()
                 .uri(uri)
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, response ->
-                        response.bodyToMono(String.class)
-                                .defaultIfEmpty("Empty error body")
-                                .flatMap(errorBody -> {
-                                    log.error("LLM API error - " + errorBody);
-                                    return Mono.error(new RuntimeException("LLM API error."));
-                                })
-                )
+                .onStatus(HttpStatusCode::isError, this::handleApiError)
                 .bodyToMono(typeReference);
+    }
+
+    private Mono<? extends Throwable> handleApiError(ClientResponse response) {
+        return response.bodyToMono(String.class)
+                .defaultIfEmpty("Empty error body")
+                .flatMap(errorBody -> {
+                    log.error("LLM API error - " + errorBody);
+                    return Mono.error(new RuntimeException("LLM API error."));
+                });
     }
 }

@@ -4,8 +4,8 @@ import com.quronest.quronest_backend.dto.AnchorDto;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.llm.LLMDailyPlanContextDto;
-import com.quronest.quronest_backend.dto.llm.LLMTaskContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMTaskGenerateContextDto;
+import com.quronest.quronest_backend.dto.llm.LLMTaskSummaryContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
 import com.quronest.quronest_backend.exception.DailyTaskAlreadyGeneratedException;
 import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
@@ -89,7 +89,7 @@ public class DailyTaskService {
 
         // create the llm context
         LLMUserContextDto userContextDto = llmContextService.getUserContext(task.getUser());
-        LLMTaskContextDto taskContextDto = new LLMTaskContextDto(task);
+        LLMTaskSummaryContextDto taskContextDto = new LLMTaskSummaryContextDto(task);
         LLMDailyPlanContextDto planContextDto = new LLMDailyPlanContextDto(task.getPlan());
 
         LLMTaskGenerateContextDto taskGenerateContextDto = new LLMTaskGenerateContextDto(task.getId(), taskContextDto,

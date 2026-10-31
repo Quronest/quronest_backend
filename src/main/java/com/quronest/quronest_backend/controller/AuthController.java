@@ -6,6 +6,7 @@ import com.quronest.quronest_backend.dto.LoginUserDto;
 import com.quronest.quronest_backend.dto.RegisterUserDto;
 import com.quronest.quronest_backend.service.UserAuthService;
 import com.quronest.quronest_backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -39,7 +40,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public BooleanDto logoutAuthenticatedUser(HttpServletResponse response) {
-        return userAuthService.logoutUser(response);
+    public BooleanDto logoutAuthenticatedUser(HttpServletRequest request, HttpServletResponse response) {
+        return userAuthService.logoutUser(request, response);
     }
 }

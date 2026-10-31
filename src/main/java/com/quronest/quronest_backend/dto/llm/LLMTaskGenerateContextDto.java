@@ -17,7 +17,7 @@ public class LLMTaskGenerateContextDto {
     private UUID taskId;
 
     @JsonProperty("task_context")
-    private LLMTaskContextDto taskContext;
+    private LLMTaskSummaryContextDto taskContext;
 
     @JsonProperty("user_context")
     private LLMUserContextDto userContext;
