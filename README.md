@@ -24,4 +24,5 @@ make liquibase
 ```
 
 ### LLM Requests processing architecture using jobs
-<img width="3883" height="2523" alt="image" src="https://github.com/user-attachments/assets/39c6d94a-b86e-41d7-b9ff-6f76541c295c" />
+<img width="3275" height="2296" alt="image" src="https://github.com/user-attachments/assets/16e6b4cf-d684-4f11-8893-d7b2840d19b9" />
+
