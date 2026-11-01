@@ -59,7 +59,7 @@ public class DailyPlanService {
             return new JobStatusDto(existedJob);
         }
 
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
+        Job job = jobProducerService.publishLLMJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
 
         return new JobStatusDto(job);
     }
@@ -73,6 +73,41 @@ public class DailyPlanService {
         List<DailyPlanLLMResponseDto> generatedPlans = llmApiService.generateDailyPlan(llmRequestDto);
 
         // add plan and task entries
+        List<DailyPlan> dailyPlans = new ArrayList<>();
+        LocalDate planDate = getNextPlanDate(journey);
+        int dayNumber = getNextDayNumber(user, journey);
+
+        journey.setLastPlanGeneratedFrom(planDate);
+
+        for (DailyPlanLLMResponseDto responseDto : generatedPlans) {
+            DailyPlan dailyPlan = new DailyPlan(user, responseDto, planDate, dayNumber);
+            dailyPlan = dailyPlanRepository.saveAndFlush(dailyPlan);
+
+            // add task entries
+            int totalExpectedTime = 0;
+            for (DailyTaskPlanLLMResponseDto taskPlanLLMResponseDto : responseDto.getTasks()) {
+                DailyTask dailyTask = new DailyTask(dailyPlan, user, taskPlanLLMResponseDto);
+                dailyTaskRepository.save(dailyTask);
+
+                totalExpectedTime += dailyTask.getExpectedTotalTime();
+            }
+
+            dailyPlan.setExpectedTotalTime(totalExpectedTime);
+            dailyPlans.add(dailyPlan);
+            planDate = planDate.plusDays(1);
+            dayNumber += 1;
+        }
+
+        journey.setLastPlanGeneratedTill(planDate.minusDays(1));
+        userJourneyRepository.save(journey);
+
+        return dailyPlans;
+    }
+
+    @Transactional
+    public List<DailyPlan> saveGeneratedDailyPlans(User user, List<DailyPlanLLMResponseDto> generatedPlans) {
+        UserJourney journey = userJourneyService.getUserCurrentJourney(user);
+
         List<DailyPlan> dailyPlans = new ArrayList<>();
         LocalDate planDate = getNextPlanDate(journey);
         int dayNumber = getNextDayNumber(user, journey);
