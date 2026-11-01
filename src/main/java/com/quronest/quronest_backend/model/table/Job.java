@@ -1,5 +1,7 @@
 package com.quronest.quronest_backend.model.table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.quronest.quronest_backend.model.enums.JobStatus;
 import com.quronest.quronest_backend.model.enums.JobType;
@@ -28,6 +30,7 @@ public class Job {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -70,6 +73,11 @@ public class Job {
         this.user = user;
         this.type = type;
         this.metadata = metadata;
+    }
+
+    @JsonProperty("user_id")
+    public UUID getUserId() {
+        return user != null ? user.getId() : null;
     }
 
     public <T> void setMetadataAs(T metadata) {

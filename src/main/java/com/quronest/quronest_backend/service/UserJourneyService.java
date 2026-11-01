@@ -52,7 +52,7 @@ public class UserJourneyService {
         }
 
         // add summary generate job
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
+        Job job = jobProducerService.publishLLMJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
                                                          groupSummaryGenerateDto);
 
         return new JobStatusDto(job);
@@ -67,6 +67,23 @@ public class UserJourneyService {
 
         // generate new summary
         UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
+
+        user.getCurrentSummary().setCurrentSummary(userGroupSummaryDto);
+        UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
+                                              userGroupSummaryDto.getSummary());
+        user.setAccountStatus(UserAccountStatus.COMPLETE);
+
+        userRepository.save(user);
+        userJourneyRepository.save(journey);
+
+        return userGroupSummaryDto;
+    }
+
+    public UserGroupSummaryDto saveUserJourneyFromSummary(User user, UserGroupSummaryDto userGroupSummaryDto) {
+        UserJourney existedJourney = userJourneyRepository.findByUser(user);
+        if (existedJourney != null) {
+            throw new JourneyAlreadyExistException();
+        }
 
         user.getCurrentSummary().setCurrentSummary(userGroupSummaryDto);
         UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),

@@ -96,7 +96,7 @@ public class DailyTaskService {
                                                                                          userContextDto,
                                                                                          planContextDto);
 
-        Job job = jobProducerService.createAndSendNewJob(task.getUser(), jobType,
+        Job job = jobProducerService.publishLLMJob(task.getUser(), jobType,
                                                          taskGenerateContextDto);
 
         return new JobStatusDto(job);
@@ -114,6 +114,36 @@ public class DailyTaskService {
         ReadingTaskContent taskContent = llmApiService.generateReadingTask(taskGenerateContextDto);
 
         // set context to task
+        task.setContentJson(taskContent);
+        task.incrementVersion();
+        task.setLastGeneratedAt(LocalDateTime.now());
+
+        dailyTaskRepository.save(task);
+
+        return task;
+    }
+
+    public DailyTask saveReadingTaskContent(User user, UUID taskId, ReadingTaskContent taskContent) {
+        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.READING);
+        if (task == null) {
+            throw new DailyTaskNotFoundException();
+        }
+
+        task.setContentJson(taskContent);
+        task.incrementVersion();
+        task.setLastGeneratedAt(LocalDateTime.now());
+
+        dailyTaskRepository.save(task);
+
+        return task;
+    }
+
+    public DailyTask saveQuizTaskContent(User user, UUID taskId, QuizTaskContent taskContent) {
+        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.QUIZ);
+        if (task == null) {
+            throw new DailyTaskNotFoundException();
+        }
+
         task.setContentJson(taskContent);
         task.incrementVersion();
         task.setLastGeneratedAt(LocalDateTime.now());
