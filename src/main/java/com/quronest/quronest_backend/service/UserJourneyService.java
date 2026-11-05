@@ -19,16 +19,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserJourneyService {
     private final UserService userService;
-    private final LLMApiService llmApiService;
     private final UserJourneyRepository userJourneyRepository;
     private final JobProducerService jobProducerService;
     private final UserRepository userRepository;
 
-    public UserJourneyService(UserService userService, LLMApiService llmApiService,
+    public UserJourneyService(UserService userService,
                               UserJourneyRepository userJourneyRepository, JobProducerService jobProducerService,
                               UserRepository userRepository) {
         this.userService = userService;
-        this.llmApiService = llmApiService;
         this.userJourneyRepository = userJourneyRepository;
         this.jobProducerService = jobProducerService;
         this.userRepository = userRepository;
@@ -56,27 +54,6 @@ public class UserJourneyService {
                                                          groupSummaryGenerateDto);
 
         return new JobStatusDto(job);
-    }
-
-    public UserGroupSummaryDto completeUserJourneyGeneration(User user,
-                                                             UserGroupSummaryGenerateDto groupSummaryGenerateDto) {
-        UserJourney existedJourney = userJourneyRepository.findByUser(user);
-        if (existedJourney != null) {
-            throw new JourneyAlreadyExistException();
-        }
-
-        // generate new summary
-        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
-
-        user.getCurrentSummary().setCurrentSummary(userGroupSummaryDto);
-        UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),
-                                              userGroupSummaryDto.getSummary());
-        user.setAccountStatus(UserAccountStatus.COMPLETE);
-
-        userRepository.save(user);
-        userJourneyRepository.save(journey);
-
-        return userGroupSummaryDto;
     }
 
     public UserGroupSummaryDto saveUserJourneyFromSummary(User user, UserGroupSummaryDto userGroupSummaryDto) {
