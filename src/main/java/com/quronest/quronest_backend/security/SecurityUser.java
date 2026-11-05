@@ -23,6 +23,9 @@ public class SecurityUser extends AbstractUserAccount implements UserDetails {
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (user == null || user.getRoles() == null || user.getRoles().isBlank()) {
+            return java.util.List.of();
+        }
         return Arrays.stream(user.getRoles().split(","))
                 .map(String::trim)
                 .map(SimpleGrantedAuthority::new)

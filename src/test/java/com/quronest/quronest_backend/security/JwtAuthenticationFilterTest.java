@@ -123,10 +123,27 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_missingAccessToken_doesNotAttemptRefresh() throws Exception {
+    void doFilterInternal_missingAccessToken_withRefreshToken_autoRefreshesViaService() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/v1/user/profile");
         request.setCookies(new Cookie("refreshToken", "valid-refresh"));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        Authentication refreshedAuth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        when(refreshTokenService.refreshTokens(request, response)).thenReturn(Optional.of(refreshedAuth));
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("alice@example.com");
+        verify(refreshTokenService).refreshTokens(request, response);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void doFilterInternal_missingBothTokens_doesNotAttemptRefresh() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/user/profile");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         filter.doFilter(request, response, filterChain);
@@ -134,5 +151,51 @@ class JwtAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         verify(refreshTokenService, never()).refreshTokens(any(), any());
         verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void doFilterInternal_invalidAccessToken_callsHandleInvalidToken() throws Exception {
+        String token = "invalid-token";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/user/profile");
+        request.setCookies(new Cookie("accessToken", token));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        when(tokenService.extractUsername(token)).thenReturn("alice@example.com");
+        when(userDetailsService.loadUserByUsername("alice@example.com")).thenReturn(userDetails);
+        when(tokenService.isAccessTokenValid(token, userDetails)).thenReturn(false);
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        verify(refreshTokenService, never()).refreshTokens(any(), any());
+        verify(refreshTokenService).handleInvalidToken(response);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void doFilterInternal_malformedJwtException_callsHandleInvalidToken() throws Exception {
+        String token = "malformed-jwt";
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/api/v1/user/profile");
+        request.setCookies(new Cookie("accessToken", token));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        when(tokenService.extractUsername(token)).thenThrow(new io.jsonwebtoken.MalformedJwtException("Malformed"));
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        verify(refreshTokenService, never()).refreshTokens(any(), any());
+        verify(refreshTokenService).handleInvalidToken(response);
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void shouldNotFilter_authEndpoints_returnsTrue() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/api/v1/auth/login");
+
+        assertThat(filter.shouldNotFilter(request)).isTrue();
     }
 }

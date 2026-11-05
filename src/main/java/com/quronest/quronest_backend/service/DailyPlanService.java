@@ -24,7 +24,6 @@ import java.util.UUID;
 
 @Service
 public class DailyPlanService {
-    private final LLMApiService llmApiService;
     private final UserService userService;
     private final LLMContextService llmContextService;
     private final UserJourneyService userJourneyService;
@@ -33,12 +32,11 @@ public class DailyPlanService {
     private final DailyTaskRepository dailyTaskRepository;
     private final UserJourneyRepository userJourneyRepository;
 
-    public DailyPlanService(LLMApiService llmApiService, UserService userService, LLMContextService llmContextService,
+    public DailyPlanService(UserService userService, LLMContextService llmContextService,
                             UserJourneyService userJourneyService, JobProducerService jobProducerService,
                             DailyPlanRepository dailyPlanRepository,
                             DailyTaskRepository dailyTaskRepository,
                             UserJourneyRepository userJourneyRepository) {
-        this.llmApiService = llmApiService;
         this.userService = userService;
         this.llmContextService = llmContextService;
         this.userJourneyService = userJourneyService;
@@ -59,20 +57,15 @@ public class DailyPlanService {
             return new JobStatusDto(existedJob);
         }
 
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
+        Job job = jobProducerService.publishLLMJob(user, JobType.LLM_GENERATE_DAILY_PLAN, llmRequestDto);
 
         return new JobStatusDto(job);
     }
 
     @Transactional
-    public List<DailyPlan> completeNextDailyPlanGeneration(User user,
-                                                           DailyPlanGenerateLLMRequestDto llmRequestDto) {
+    public List<DailyPlan> saveGeneratedDailyPlans(User user, List<DailyPlanLLMResponseDto> generatedPlans) {
         UserJourney journey = userJourneyService.getUserCurrentJourney(user);
 
-        // create llm call
-        List<DailyPlanLLMResponseDto> generatedPlans = llmApiService.generateDailyPlan(llmRequestDto);
-
-        // add plan and task entries
         List<DailyPlan> dailyPlans = new ArrayList<>();
         LocalDate planDate = getNextPlanDate(journey);
         int dayNumber = getNextDayNumber(user, journey);

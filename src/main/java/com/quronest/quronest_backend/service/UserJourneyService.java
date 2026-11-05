@@ -19,16 +19,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserJourneyService {
     private final UserService userService;
-    private final LLMApiService llmApiService;
     private final UserJourneyRepository userJourneyRepository;
     private final JobProducerService jobProducerService;
     private final UserRepository userRepository;
 
-    public UserJourneyService(UserService userService, LLMApiService llmApiService,
+    public UserJourneyService(UserService userService,
                               UserJourneyRepository userJourneyRepository, JobProducerService jobProducerService,
                               UserRepository userRepository) {
         this.userService = userService;
-        this.llmApiService = llmApiService;
         this.userJourneyRepository = userJourneyRepository;
         this.jobProducerService = jobProducerService;
         this.userRepository = userRepository;
@@ -52,21 +50,17 @@ public class UserJourneyService {
         }
 
         // add summary generate job
-        Job job = jobProducerService.createAndSendNewJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
+        Job job = jobProducerService.publishLLMJob(user, JobType.LLM_GENERATE_USER_SUMMARY,
                                                          groupSummaryGenerateDto);
 
         return new JobStatusDto(job);
     }
 
-    public UserGroupSummaryDto completeUserJourneyGeneration(User user,
-                                                             UserGroupSummaryGenerateDto groupSummaryGenerateDto) {
+    public UserGroupSummaryDto saveUserJourneyFromSummary(User user, UserGroupSummaryDto userGroupSummaryDto) {
         UserJourney existedJourney = userJourneyRepository.findByUser(user);
         if (existedJourney != null) {
             throw new JourneyAlreadyExistException();
         }
-
-        // generate new summary
-        UserGroupSummaryDto userGroupSummaryDto = llmApiService.generateUserGroupSummary(groupSummaryGenerateDto);
 
         user.getCurrentSummary().setCurrentSummary(userGroupSummaryDto);
         UserJourney journey = new UserJourney(user, userGroupSummaryDto.getGroup(), userGroupSummaryDto.getPhase(),

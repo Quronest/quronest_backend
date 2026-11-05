@@ -84,6 +84,20 @@ public class JsonUtils {
         }
     }
 
+    public static <T> List<T> fromJsonNodeToList(JsonNode jsonNode, Class<T> t) {
+        try {
+            if (jsonNode == null || jsonNode.isNull()) {
+                return null;
+            }
+            return objectMapper.readValue(
+                    objectMapper.treeAsTokens(jsonNode),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, t)
+            );
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to convert JsonNode to List<" + t.getName() + ">", e);
+        }
+    }
+
     public static <T> JsonNode toJsonNode(T obj) {
         return objectMapper.valueToTree(obj);
     }

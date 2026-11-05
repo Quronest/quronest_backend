@@ -35,7 +35,6 @@ public class DailyTaskService {
     private final JobProducerService jobProducerService;
     private final UserService userService;
     private final LLMContextService llmContextService;
-    private final LLMApiService llmApiService;
 
     private final List<DailyTaskType> ALLOWED_ANCHOR_TASK_TYPES = List.of(DailyTaskType.READING);
     private final AnchorRepository anchorRepository;
@@ -43,14 +42,13 @@ public class DailyTaskService {
     public DailyTaskService(DailyTaskRepository dailyTaskRepository,
                             DailyTaskLogRepository dailyTaskLogRepository,
                             JobProducerService jobProducerService,
-                            UserService userService, LLMContextService llmContextService, LLMApiService llmApiService,
+                            UserService userService, LLMContextService llmContextService,
                             AnchorRepository anchorRepository) {
         this.dailyTaskRepository = dailyTaskRepository;
         this.dailyTaskLogRepository = dailyTaskLogRepository;
         this.jobProducerService = jobProducerService;
         this.userService = userService;
         this.llmContextService = llmContextService;
-        this.llmApiService = llmApiService;
         this.anchorRepository = anchorRepository;
     }
 
@@ -96,24 +94,18 @@ public class DailyTaskService {
                                                                                          userContextDto,
                                                                                          planContextDto);
 
-        Job job = jobProducerService.createAndSendNewJob(task.getUser(), jobType,
+        Job job = jobProducerService.publishLLMJob(task.getUser(), jobType,
                                                          taskGenerateContextDto);
 
         return new JobStatusDto(job);
     }
 
-    public DailyTask completeReadingTaskGeneration(User user,
-                                                   LLMTaskGenerateContextDto taskGenerateContextDto) {
-        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskGenerateContextDto.getTaskId(), user,
-                                                                        DailyTaskType.READING);
+    public DailyTask saveReadingTaskContent(User user, UUID taskId, ReadingTaskContent taskContent) {
+        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.READING);
         if (task == null) {
             throw new DailyTaskNotFoundException();
         }
 
-        // generate response
-        ReadingTaskContent taskContent = llmApiService.generateReadingTask(taskGenerateContextDto);
-
-        // set context to task
         task.setContentJson(taskContent);
         task.incrementVersion();
         task.setLastGeneratedAt(LocalDateTime.now());
@@ -123,18 +115,12 @@ public class DailyTaskService {
         return task;
     }
 
-    public DailyTask completeQuizTaskGeneration(User user,
-                                                LLMTaskGenerateContextDto taskGenerateContextDto) {
-        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskGenerateContextDto.getTaskId(), user,
-                                                                        DailyTaskType.QUIZ);
+    public DailyTask saveQuizTaskContent(User user, UUID taskId, QuizTaskContent taskContent) {
+        DailyTask task = dailyTaskRepository.findByIdAndUserAndTaskType(taskId, user, DailyTaskType.QUIZ);
         if (task == null) {
             throw new DailyTaskNotFoundException();
         }
 
-        // generate response
-        QuizTaskContent taskContent = llmApiService.generateQuizTask(taskGenerateContextDto);
-
-        // set context to task
         task.setContentJson(taskContent);
         task.incrementVersion();
         task.setLastGeneratedAt(LocalDateTime.now());
