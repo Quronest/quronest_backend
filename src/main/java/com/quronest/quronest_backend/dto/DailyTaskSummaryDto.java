@@ -25,6 +25,9 @@ public class DailyTaskSummaryDto {
     @JsonProperty("title")
     private String title;
 
+    @JsonProperty("description")
+    private String description;
+
     @JsonProperty("task_type")
     private DailyTaskType taskType;
 
@@ -48,6 +51,7 @@ public class DailyTaskSummaryDto {
             this.id = task.getId();
             this.order = task.getOrder();
             this.title = task.getTitle();
+            this.description = task.getDescription();
             this.taskType = task.getTaskType();
             this.status = task.getStatus();
             this.expectedTotalTime = task.getExpectedTotalTime();
