@@ -9,12 +9,22 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuizPerformanceData {
+    @JsonProperty("id")
+    private UUID id;
+
+    @JsonProperty("total_points")
+    private Integer totalPoints;
+
+    @JsonProperty("max_points")
+    private Integer maxPoints;
+
     @JsonProperty("submissions")
     private List<QuizSubmitResponseDto> submissions = new ArrayList<>();
 }

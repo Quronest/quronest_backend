@@ -24,5 +24,5 @@ public class ReadingTaskContent {
     private String youtubeVideoSummary;
 
     @JsonProperty("questionnaires")
-    private List<McqQuestion> questionnaires;
+    private List<QuizQuestion> questionnaires;
 }

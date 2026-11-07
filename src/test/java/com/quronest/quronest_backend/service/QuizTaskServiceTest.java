@@ -5,10 +5,11 @@ import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.QuizQuestionDto;
 import com.quronest.quronest_backend.dto.QuizTaskContentDto;
 import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
-import com.quronest.quronest_backend.model.McqQuestion;
 import com.quronest.quronest_backend.model.McqQuestionOption;
+import com.quronest.quronest_backend.model.QuizQuestion;
 import com.quronest.quronest_backend.model.QuizTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
+import com.quronest.quronest_backend.model.enums.QuizQuestionType;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.User;
 import com.quronest.quronest_backend.repository.DailyTaskLogRepository;
@@ -42,6 +43,9 @@ class QuizTaskServiceTest {
     @Mock
     private QuronestConfig quronestConfig;
 
+    @Mock
+    private LLMApiService llmApiService;
+
     @InjectMocks
     private QuizTaskService quizTaskService;
 
@@ -66,15 +70,29 @@ class QuizTaskServiceTest {
         McqQuestionOption opt1 = new McqQuestionOption(1, "a", "Option A");
         McqQuestionOption opt2 = new McqQuestionOption(2, "b", "Option B");
 
-        McqQuestion question = new McqQuestion(
+        QuizQuestion question1 = new QuizQuestion(
                 1,
-                "Sample Question?",
+                QuizQuestionType.MCQ,
+                "Sample MCQ Question?",
                 List.of(opt1, opt2),
                 opt1,
-                "Explanation here"
+                null,
+                "Explanation here",
+                1
         );
 
-        QuizTaskContent content = new QuizTaskContent(List.of(question));
+        QuizQuestion question2 = new QuizQuestion(
+                2,
+                QuizQuestionType.SAQ,
+                "Sample SAQ Question?",
+                List.of(),
+                null,
+                "Sample Answer",
+                "SAQ explanation",
+                2
+        );
+
+        QuizTaskContent content = new QuizTaskContent(List.of(question1, question2), 3);
         task.setContentJson(content);
 
         when(userService.getAuthenticatedUser()).thenReturn(testUser);
@@ -87,12 +105,22 @@ class QuizTaskServiceTest {
         assertTrue(result.getContent() instanceof QuizTaskContentDto);
 
         QuizTaskContentDto contentDto = (QuizTaskContentDto) result.getContent();
-        assertEquals(1, contentDto.getQuestionnaires().size());
+        assertEquals(2, contentDto.getQuestionnaires().size());
+        assertEquals(3, contentDto.getMaxTotalPoint());
 
-        QuizQuestionDto questionDto = contentDto.getQuestionnaires().get(0);
-        assertEquals(1, questionDto.getId());
-        assertEquals("Sample Question?", questionDto.getTitle());
-        assertEquals(2, questionDto.getOptions().size());
+        QuizQuestionDto mcqDto = contentDto.getQuestionnaires().get(0);
+        assertEquals(1, mcqDto.getId());
+        assertEquals(QuizQuestionType.MCQ, mcqDto.getType());
+        assertEquals("Sample MCQ Question?", mcqDto.getTitle());
+        assertEquals(2, mcqDto.getOptions().size());
+        assertEquals(1, mcqDto.getMaxPoints());
+
+        QuizQuestionDto saqDto = contentDto.getQuestionnaires().get(1);
+        assertEquals(2, saqDto.getId());
+        assertEquals(QuizQuestionType.SAQ, saqDto.getType());
+        assertEquals("Sample SAQ Question?", saqDto.getTitle());
+        assertTrue(saqDto.getOptions().isEmpty());
+        assertEquals(2, saqDto.getMaxPoints());
     }
 
     @Test
@@ -119,7 +147,7 @@ class QuizTaskServiceTest {
         task.setId(taskId);
         task.setUser(testUser);
         task.setTaskType(DailyTaskType.QUIZ);
-        task.setContentJson(new QuizTaskContent(List.of()));
+        task.setContentJson(new QuizTaskContent(List.of(), 0));
 
         when(userService.getAuthenticatedUser()).thenReturn(testUser);
         when(dailyTaskRepository.findByIdAndUserAndTaskType(taskId, testUser, DailyTaskType.QUIZ)).thenReturn(task);

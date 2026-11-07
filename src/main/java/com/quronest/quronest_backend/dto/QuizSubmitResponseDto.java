@@ -17,6 +17,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuizSubmitResponseDto {
+    @JsonProperty("id")
+    private UUID id;
+
+    @JsonProperty("task_log_id")
+    private UUID taskLogId;
+
     @JsonProperty("task_id")
     private UUID taskId;
 
@@ -28,6 +34,12 @@ public class QuizSubmitResponseDto {
 
     @JsonProperty("total_correct")
     private Integer totalCorrect = 0;
+
+    @JsonProperty("total_points")
+    private Integer totalPoints = 0;
+
+    @JsonProperty("max_points")
+    private Integer maxPoints = 0;
 
     @JsonProperty("score_percentage")
     private Double scorePercentage = 0.0;
@@ -41,22 +53,35 @@ public class QuizSubmitResponseDto {
     @JsonProperty("total_time_spent")
     private Integer totalTimeSpent = 0;
 
+    @JsonProperty("calculated_progress")
+    private Integer calculatedProgress = 0;
+
+    @JsonProperty("validation_job_id")
+    private UUID validationJobId;
+
     @JsonProperty("questions")
     private List<QuizQuestionResultDto> questions = new ArrayList<>();
 
-    public QuizSubmitResponseDto(DailyTask task, Integer totalQuestions, Integer totalCorrect,
+    public QuizSubmitResponseDto(UUID id, UUID taskLogId, DailyTask task, Integer totalQuestions,
+                                 Integer totalCorrect, Integer totalPoints, Integer maxPoints,
                                  Double scorePercentage, Boolean passed, Double passThreshold,
-                                 Integer totalTimeSpent, List<QuizQuestionResultDto> questions) {
+                                 Integer totalTimeSpent, Integer calculatedProgress,
+                                 List<QuizQuestionResultDto> questions) {
+        this.id = id;
+        this.taskLogId = taskLogId;
         if (task != null) {
             this.taskId = task.getId();
             this.status = task.getStatus();
         }
         this.totalQuestions = totalQuestions;
         this.totalCorrect = totalCorrect;
+        this.totalPoints = totalPoints;
+        this.maxPoints = maxPoints;
         this.scorePercentage = scorePercentage;
         this.passed = passed;
         this.passThreshold = passThreshold;
         this.totalTimeSpent = totalTimeSpent;
+        this.calculatedProgress = calculatedProgress;
         this.questions = questions;
     }
 }
