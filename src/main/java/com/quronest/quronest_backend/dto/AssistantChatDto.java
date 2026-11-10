@@ -1,6 +1,5 @@
 package com.quronest.quronest_backend.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quronest.quronest_backend.model.AssistantChatContext;
 import com.quronest.quronest_backend.model.enums.AssistantChatGenerateStatus;
@@ -28,7 +27,6 @@ public class AssistantChatDto {
     private UUID roomId;
 
     @JsonProperty("assistant_chat_room")
-    @JsonAlias({"chat_room", "room", "assistant_chat_room_dto"})
     private AssistantChatRoomDto assistantChatRoomDto;
 
     @JsonProperty("user_id")

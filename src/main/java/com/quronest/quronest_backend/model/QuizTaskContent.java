@@ -1,6 +1,5 @@
 package com.quronest.quronest_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +18,5 @@ public class QuizTaskContent {
     private List<QuizQuestion> questionnaires = new ArrayList<>();
 
     @JsonProperty("max_total_point")
-    @JsonAlias({"max_total_points"})
     private Integer maxTotalPoint;
 }
