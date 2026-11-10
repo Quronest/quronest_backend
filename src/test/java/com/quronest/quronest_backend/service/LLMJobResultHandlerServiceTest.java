@@ -149,11 +149,11 @@ class LLMJobResultHandlerServiceTest {
     }
 
     @Test
-    void testErrorMessageDtoDeserializationWithAliasesAndUnknownFields() throws Exception {
+    void testErrorMessageDtoDeserializationWithCanonicalFieldsAndUnknownFields() throws Exception {
         String json = """
                 {
-                    "message": "no signature found for builtin type <class 'str'>",
-                    "error_type": "ValueError",
+                    "error_message": "no signature found for builtin type <class 'str'>",
+                    "source": "ValueError",
                     "extra_unknown_field": 12345
                 }
                 """;
