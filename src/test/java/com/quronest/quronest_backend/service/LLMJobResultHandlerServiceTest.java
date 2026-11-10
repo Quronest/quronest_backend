@@ -147,4 +147,19 @@ class LLMJobResultHandlerServiceTest {
         assertNotNull(job.getFailedAt());
         verify(webSocketService, times(1)).sendJobUpdate(eq(job), eq(JobStatus.FAILED), isNull());
     }
+
+    @Test
+    void testErrorMessageDtoDeserializationWithAliasesAndUnknownFields() throws Exception {
+        String json = """
+                {
+                    "message": "no signature found for builtin type <class 'str'>",
+                    "error_type": "ValueError",
+                    "extra_unknown_field": 12345
+                }
+                """;
+        ErrorMessageDto dto = JsonUtils.fromJson(json, ErrorMessageDto.class);
+        assertNotNull(dto);
+        assertEquals("no signature found for builtin type <class 'str'>", dto.getErrorMessage());
+        assertEquals("ValueError", dto.getSource());
+    }
 }
