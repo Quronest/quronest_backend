@@ -54,7 +54,7 @@ public class DailyTaskLog {
     private LocalDateTime completedAt;
 
     @Column(name = "total_time_spent")
-    private Integer totalTimeSpent; // in minutes
+    private Integer totalTimeSpent = 0; // in minutes
 
     // Effort Tracking
     @Column(name = "attempts")
@@ -98,6 +98,16 @@ public class DailyTaskLog {
 
     public <T> T getPerformanceDataAs(Class<T> clazz) {
         return JsonUtils.fromJsonNode(this.performanceData, clazz);
+    }
+
+    public DailyTaskLog(DailyTask task, User user) {
+        this.task = task;
+        this.user = user;
+        if (task != null) {
+            this.plan = task.getPlan();
+            this.status = task.getStatus();
+        }
+        this.startedAt = LocalDateTime.now();
     }
 
     public DailyTaskLog(User user, DailyTask task, Integer totalTimeSpent,

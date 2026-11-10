@@ -16,4 +16,7 @@ import java.util.List;
 public class QuizTaskContentDto {
     @JsonProperty("questionnaires")
     private List<QuizQuestionDto> questionnaires = new ArrayList<>();
+
+    @JsonProperty("max_total_point")
+    private Integer maxTotalPoint;
 }

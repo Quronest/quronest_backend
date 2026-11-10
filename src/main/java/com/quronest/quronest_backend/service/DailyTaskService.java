@@ -1,5 +1,6 @@
 package com.quronest.quronest_backend.service;
 
+import com.quronest.quronest_backend.config.QuizConfig;
 import com.quronest.quronest_backend.dto.AnchorDto;
 import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.JobStatusDto;
@@ -9,10 +10,12 @@ import com.quronest.quronest_backend.dto.llm.LLMTaskSummaryContextDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
 import com.quronest.quronest_backend.exception.DailyTaskAlreadyGeneratedException;
 import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
+import com.quronest.quronest_backend.model.QuizQuestion;
 import com.quronest.quronest_backend.model.QuizTaskContent;
 import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.JobType;
+import com.quronest.quronest_backend.model.enums.QuizQuestionType;
 import com.quronest.quronest_backend.model.table.DailyTask;
 import com.quronest.quronest_backend.model.table.Job;
 import com.quronest.quronest_backend.model.table.User;
@@ -95,7 +98,7 @@ public class DailyTaskService {
                                                                                          planContextDto);
 
         Job job = jobProducerService.publishLLMJob(task.getUser(), jobType,
-                                                         taskGenerateContextDto);
+                                                   taskGenerateContextDto);
 
         return new JobStatusDto(job);
     }
@@ -121,6 +124,10 @@ public class DailyTaskService {
             throw new DailyTaskNotFoundException();
         }
 
+        if (taskContent != null) {
+            taskContent.setMaxTotalPoint(calculateQuizTotalMaxPoints(taskContent));
+        }
+
         task.setContentJson(taskContent);
         task.incrementVersion();
         task.setLastGeneratedAt(LocalDateTime.now());
@@ -128,6 +135,24 @@ public class DailyTaskService {
         dailyTaskRepository.save(task);
 
         return task;
+    }
+
+    public Integer calculateQuizTotalMaxPoints(QuizTaskContent taskContent) {
+        if (taskContent.getQuestionnaires() == null) {
+            return 0;
+        }
+        int totalMaxPoints = 0;
+        for (QuizQuestion question : taskContent.getQuestionnaires()) {
+            if (question != null) {
+                int points = (question.getType() == QuizQuestionType.SAQ)
+                        ? QuizConfig.SAQ_MAX_POINTS
+                        : QuizConfig.MCQ_MAX_POINTS;
+                question.setMaxPoints(points);
+                totalMaxPoints += points;
+            }
+        }
+
+        return totalMaxPoints;
     }
 
     public DailyTaskDto getTaskById(UUID taskId) {
@@ -150,18 +175,7 @@ public class DailyTaskService {
     public DailyTaskLog getOrCreateTaskLog(DailyTask task, User user) {
         DailyTaskLog taskLog = dailyTaskLogRepository.findByTaskAndUser(task, user);
         if (taskLog == null) {
-            taskLog = new DailyTaskLog();
-            taskLog.setTask(task);
-            taskLog.setUser(user);
-            if (task != null) {
-                taskLog.setPlan(task.getPlan());
-                taskLog.setStatus(task.getStatus());
-            }
-            taskLog.setStartedAt(LocalDateTime.now());
-            taskLog.setAttempts(0);
-            taskLog.setTotalTimeSpent(0);
-            taskLog.setMaxScore(0.0);
-            taskLog.setProgressPercent(0);
+            taskLog = new DailyTaskLog(task, user);
             dailyTaskLogRepository.save(taskLog);
         }
         return taskLog;
