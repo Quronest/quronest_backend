@@ -25,4 +25,16 @@ public class ReadingTaskContent {
 
     @JsonProperty("questionnaires")
     private List<QuizQuestion> questionnaires;
+
+    @JsonProperty("max_total_point")
+    private Integer maxTotalPoint;
+
+    public ReadingTaskContent(String markdownContent, List<SourceUrl> sources, String youtubeVideoUrl,
+                              String youtubeVideoSummary, List<QuizQuestion> questionnaires) {
+        this.markdownContent = markdownContent;
+        this.sources = sources;
+        this.youtubeVideoUrl = youtubeVideoUrl;
+        this.youtubeVideoSummary = youtubeVideoSummary;
+        this.questionnaires = questionnaires;
+    }
 }

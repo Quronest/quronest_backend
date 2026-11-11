@@ -5,6 +5,7 @@ import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
 import com.quronest.quronest_backend.model.McqQuestionOption;
 import com.quronest.quronest_backend.model.QuizQuestion;
 import com.quronest.quronest_backend.model.QuizTaskContent;
+import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.QuizQuestionType;
@@ -117,6 +118,64 @@ class DailyTaskServiceQuizTest {
     @Test
     void calculateQuizTotalMaxPoints_NullQuestionnaires_ReturnsZero() {
         assertEquals(0, dailyTaskService.calculateQuizTotalMaxPoints(new QuizTaskContent(null, null)));
+    }
+
+    @Test
+    void saveReadingTaskContent_AssignsPointsToQuestionsAndCalculatesTotal() {
+        DailyTask task = new DailyTask();
+        task.setId(taskId);
+        task.setUser(testUser);
+        task.setTaskType(DailyTaskType.READING);
+
+        QuizQuestion q1 = new QuizQuestion();
+        q1.setId(1);
+        q1.setType(QuizQuestionType.MCQ);
+        q1.setTitle("MCQ question 1");
+        q1.setOptions(List.of(new McqQuestionOption(1, "a", "A")));
+
+        QuizQuestion q2 = new QuizQuestion();
+        q2.setId(2);
+        q2.setType(QuizQuestionType.MCQ);
+        q2.setTitle("MCQ question 2");
+        q2.setOptions(List.of(new McqQuestionOption(2, "b", "B")));
+
+        ReadingTaskContent content = new ReadingTaskContent();
+        content.setMarkdownContent("# Reading Markdown");
+        content.setQuestionnaires(new ArrayList<>(List.of(q1, q2)));
+
+        assertNull(q1.getMaxPoints());
+        assertNull(q2.getMaxPoints());
+        assertNull(content.getMaxTotalPoint());
+
+        when(dailyTaskRepository.findByIdAndUserAndTaskType(taskId, testUser, DailyTaskType.READING)).thenReturn(task);
+
+        DailyTask savedTask = dailyTaskService.saveReadingTaskContent(testUser, taskId, content);
+
+        assertNotNull(savedTask);
+        assertEquals(QuizConfig.MCQ_MAX_POINTS, q1.getMaxPoints());
+        assertEquals(QuizConfig.MCQ_MAX_POINTS, q2.getMaxPoints());
+        assertEquals(2, content.getMaxTotalPoint());
+
+        ReadingTaskContent savedContent = savedTask.getContentAs(ReadingTaskContent.class);
+        assertNotNull(savedContent);
+        assertEquals(2, savedContent.getMaxTotalPoint());
+        assertEquals(1, savedContent.getQuestionnaires().get(0).getMaxPoints());
+        assertEquals(1, savedContent.getQuestionnaires().get(1).getMaxPoints());
+
+        verify(dailyTaskRepository).save(task);
+    }
+
+    @Test
+    void saveReadingTaskContent_TaskNotFound_ThrowsException() {
+        when(dailyTaskRepository.findByIdAndUserAndTaskType(taskId, testUser, DailyTaskType.READING)).thenReturn(null);
+
+        assertThrows(DailyTaskNotFoundException.class, () ->
+                dailyTaskService.saveReadingTaskContent(testUser, taskId, new ReadingTaskContent()));
+    }
+
+    @Test
+    void calculateReadingTotalMaxPoints_NullQuestionnaires_ReturnsZero() {
+        assertEquals(0, dailyTaskService.calculateReadingTotalMaxPoints(new ReadingTaskContent()));
     }
 
     @Test

@@ -109,6 +109,10 @@ public class DailyTaskService {
             throw new DailyTaskNotFoundException();
         }
 
+        if (taskContent != null) {
+            taskContent.setMaxTotalPoint(calculateReadingTotalMaxPoints(taskContent));
+        }
+
         task.setContentJson(taskContent);
         task.incrementVersion();
         task.setLastGeneratedAt(LocalDateTime.now());
@@ -116,6 +120,24 @@ public class DailyTaskService {
         dailyTaskRepository.save(task);
 
         return task;
+    }
+
+    public Integer calculateReadingTotalMaxPoints(ReadingTaskContent taskContent) {
+        if (taskContent == null || taskContent.getQuestionnaires() == null) {
+            return 0;
+        }
+        int totalMaxPoints = 0;
+        for (QuizQuestion question : taskContent.getQuestionnaires()) {
+            if (question != null) {
+                int points = (question.getMaxPoints() != null)
+                        ? question.getMaxPoints()
+                        : QuizConfig.MCQ_MAX_POINTS;
+                question.setMaxPoints(points);
+                totalMaxPoints += points;
+            }
+        }
+
+        return totalMaxPoints;
     }
 
     public DailyTask saveQuizTaskContent(User user, UUID taskId, QuizTaskContent taskContent) {

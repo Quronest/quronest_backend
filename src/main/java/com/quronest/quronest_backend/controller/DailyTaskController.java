@@ -43,6 +43,12 @@ public class DailyTaskController {
         return readingTaskService.getReadingTaskById(taskId);
     }
 
+    @PostMapping("/{taskId}/reading/submit")
+    public QuizSubmitResponseDto submitReadingTask(@PathVariable UUID taskId,
+                                                    @Valid @RequestBody QuizSubmitRequestDto requestDto) {
+        return readingTaskService.submitReadingTask(taskId, requestDto);
+    }
+
     @GetMapping("/{taskId}/quiz")
     public DailyTaskDto getQuizTaskById(@PathVariable UUID taskId) {
         return quizTaskService.getQuizTaskById(taskId);

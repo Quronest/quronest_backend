@@ -12,6 +12,7 @@ import com.quronest.quronest_backend.model.McqQuestionOption;
 import com.quronest.quronest_backend.model.QuizPerformanceData;
 import com.quronest.quronest_backend.model.QuizQuestion;
 import com.quronest.quronest_backend.model.QuizTaskContent;
+import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.EvaluationClass;
@@ -124,6 +125,57 @@ class QuizTaskServiceSubmitTest {
     }
 
     @Test
+    void verifyMcq_DelegatesToVerifyMcqQuestion() {
+        McqQuestionOption opt1 = new McqQuestionOption(1, "a", "Option A");
+        QuizQuestion q1 = createMcqQuestion(1, "Q1", List.of(opt1), opt1, "Exp 1");
+
+        List<QuizQuestionResultDto> results = quizTaskService.verifyMcq(
+                List.of(q1),
+                Map.of(1, 1)
+        );
+
+        assertEquals(1, results.size());
+        assertTrue(results.get(0).getIsCorrect());
+    }
+
+    @Test
+    void getMaxTotalPoint_WhenStoredTotalAvailable_ReturnsStoredTotal() {
+        QuizQuestion q1 = createMcqQuestion(1, "Q1", List.of(), null, null);
+        QuizTaskContent content = new QuizTaskContent(List.of(q1), 5); // stored is 5
+
+        int total = quizTaskService.getMaxTotalPoint(content);
+
+        assertEquals(5, total);
+    }
+
+    @Test
+    void getMaxTotalPoint_WhenStoredTotalNull_CalculatesFromQuestionnaires() {
+        QuizQuestion q1 = createMcqQuestion(1, "Q1", List.of(), null, null); // MCQ -> 1 pt
+        QuizQuestion q2 = createSaqQuestion(2, "Q2", "Sol", null); // SAQ -> 2 pt
+        QuizTaskContent content = new QuizTaskContent(List.of(q1, q2), null);
+
+        int total = quizTaskService.getMaxTotalPoint(content);
+
+        assertEquals(3, total);
+    }
+
+    @Test
+    void getMaxTotalPoint_ReadingTaskContent_UsesStoredOrCalculated() {
+        QuizQuestion q1 = createMcqQuestion(1, "Q1", List.of(), null, null);
+        QuizQuestion q2 = createMcqQuestion(2, "Q2", List.of(), null, null);
+
+        ReadingTaskContent contentWithStored = new ReadingTaskContent();
+        contentWithStored.setQuestionnaires(List.of(q1, q2));
+        contentWithStored.setMaxTotalPoint(10);
+        assertEquals(10, quizTaskService.getMaxTotalPoint(contentWithStored));
+
+        ReadingTaskContent contentWithoutStored = new ReadingTaskContent();
+        contentWithoutStored.setQuestionnaires(List.of(q1, q2));
+        contentWithoutStored.setMaxTotalPoint(null);
+        assertEquals(2, quizTaskService.getMaxTotalPoint(contentWithoutStored));
+    }
+
+    @Test
     void verifySaqQuestion_EvaluatesViaLLMApiService() {
         QuizQuestion q1 = createSaqQuestion(1, "SAQ 1", "Sol 1", "Exp 1");
         QuizQuestion q2 = createSaqQuestion(2, "SAQ 2", "Sol 2", "Exp 2");
@@ -204,13 +256,13 @@ class QuizTaskServiceSubmitTest {
         assertEquals(1, response.getTotalPoints());
         assertEquals(2, response.getMaxPoints());
         assertEquals(50.0, response.getScorePercentage());
-        assertEquals(50, response.getCalculatedProgress());
+        assertEquals(100, response.getCalculatedProgress());
         assertTrue(response.getPassed());
         assertEquals(DailyTaskStatus.COMPLETED, response.getStatus());
 
         // Verify DailyTask was updated
         assertEquals(25, task.getActualTimeSpent()); // 10 + 15
-        assertEquals(50, task.getProgressPercent());
+        assertEquals(100, task.getProgressPercent());
         assertEquals(DailyTaskStatus.COMPLETED, task.getStatus());
         verify(dailyTaskRepository).save(task);
 
@@ -223,7 +275,7 @@ class QuizTaskServiceSubmitTest {
         assertEquals(25, savedLog.getTotalTimeSpent()); // 10 + 15
         assertEquals(50.0, savedLog.getMaxScore());
         assertEquals(50.0, savedLog.getAiScore());
-        assertEquals(50, savedLog.getProgressPercent());
+        assertEquals(100, savedLog.getProgressPercent());
         assertEquals(DailyTaskStatus.COMPLETED, savedLog.getStatus());
         assertNotNull(savedLog.getCompletedAt());
         assertNotNull(savedLog.getLastAttemptAt());

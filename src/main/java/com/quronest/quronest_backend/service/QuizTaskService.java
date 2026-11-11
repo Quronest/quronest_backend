@@ -14,6 +14,7 @@ import com.quronest.quronest_backend.exception.DailyTaskNotFoundException;
 import com.quronest.quronest_backend.model.QuizPerformanceData;
 import com.quronest.quronest_backend.model.QuizQuestion;
 import com.quronest.quronest_backend.model.QuizTaskContent;
+import com.quronest.quronest_backend.model.ReadingTaskContent;
 import com.quronest.quronest_backend.model.enums.DailyTaskStatus;
 import com.quronest.quronest_backend.model.enums.DailyTaskType;
 import com.quronest.quronest_backend.model.enums.EvaluationClass;
@@ -72,6 +73,45 @@ public class QuizTaskService {
         }
 
         return dailyTaskDto;
+    }
+
+    public int getMaxTotalPoint(Integer maxTotalPoint, List<QuizQuestion> questionnaires) {
+        if (maxTotalPoint != null && maxTotalPoint > 0) {
+            return maxTotalPoint;
+        }
+        if (questionnaires == null || questionnaires.isEmpty()) {
+            return 0;
+        }
+        return questionnaires.stream()
+                .filter(Objects::nonNull)
+                .mapToInt(q -> {
+                    if (q.getMaxPoints() != null) {
+                        return q.getMaxPoints();
+                    }
+                    return (q.getType() == QuizQuestionType.SAQ)
+                            ? QuizConfig.SAQ_MAX_POINTS
+                            : QuizConfig.MCQ_MAX_POINTS;
+                })
+                .sum();
+    }
+
+    public int getMaxTotalPoint(QuizTaskContent quizTaskContent) {
+        if (quizTaskContent == null) {
+            return 0;
+        }
+        return getMaxTotalPoint(quizTaskContent.getMaxTotalPoint(), quizTaskContent.getQuestionnaires());
+    }
+
+    public int getMaxTotalPoint(ReadingTaskContent readingTaskContent) {
+        if (readingTaskContent == null) {
+            return 0;
+        }
+        return getMaxTotalPoint(readingTaskContent.getMaxTotalPoint(), readingTaskContent.getQuestionnaires());
+    }
+
+    public List<QuizQuestionResultDto> verifyMcq(List<QuizQuestion> mcqQuestions,
+                                                 Map<Integer, Integer> mcqAnswers) {
+        return verifyMcqQuestion(mcqQuestions, mcqAnswers);
     }
 
     public List<QuizQuestionResultDto> verifyMcqQuestion(List<QuizQuestion> mcqQuestions,
@@ -172,10 +212,8 @@ public class QuizTaskService {
 
         List<QuizQuestionResultDto> resultQuestionDtos = combineResults(questionnaires, mcqResults, saqResults);
 
-        // 4. Use max_total_point from QuizTaskContent directly (do NOT recalculate it)
-        int maxTotalPoint = quizTaskContent != null && quizTaskContent.getMaxTotalPoint() != null
-                ? quizTaskContent.getMaxTotalPoint()
-                : 0;
+        // 4. Resolve max_total_point (use available total or fallback to calculation)
+        int maxTotalPoint = getMaxTotalPoint(quizTaskContent);
 
         int totalQuestions = questionnaires.size();
         int totalPoints = resultQuestionDtos.stream()
@@ -190,7 +228,7 @@ public class QuizTaskService {
         boolean passed = scorePercentage >= passThreshold;
 
         int timeSpent = submitRequest.getTotalTimeSpent();
-        int calculatedProgress = (int) Math.round(scorePercentage);
+        int calculatedProgress = passed ? 100 : (int) Math.round(scorePercentage);
 
         // 5. Update DailyTask
         updateDailyTask(task, timeSpent, calculatedProgress, passed);
@@ -237,12 +275,15 @@ public class QuizTaskService {
 
     private void updateDailyTask(DailyTask task, int timeSpent, int calculatedProgress, boolean passed) {
         task.setActualTimeSpent(task.getActualTimeSpent() + timeSpent);
-        task.setProgressPercent(Math.max(task.getProgressPercent(), calculatedProgress));
 
         if (passed) {
+            task.setProgressPercent(100);
             task.setStatus(DailyTaskStatus.COMPLETED);
-        } else if (task.getStatus() == DailyTaskStatus.PENDING) {
-            task.setStatus(DailyTaskStatus.PARTIAL);
+        } else {
+            task.setProgressPercent(Math.max(task.getProgressPercent(), calculatedProgress));
+            if (task.getStatus() == DailyTaskStatus.PENDING) {
+                task.setStatus(DailyTaskStatus.PARTIAL);
+            }
         }
         dailyTaskRepository.save(task);
     }
