@@ -60,3 +60,7 @@ This document serves as the guide for AI agents working on `quronest_backend`. I
 - Every change should be backed by clean, focused unit and integration tests.
 - Verify test suites and builds before completing tasks (`./mvnw test`).
 - Maintain existing coding conventions and style across all files.
+
+### 7. Always Create Dedicated Exception Classes in exception/
+- Never throw raw generic exceptions or instantiate `CustomApiErrorResponseException` directly inside services or business logic.
+- Always create a dedicated, strongly-typed exception class in the `exception/` package extending `CustomApiErrorResponseException` with an appropriate `HttpStatus`, domain error code, and clear error message.

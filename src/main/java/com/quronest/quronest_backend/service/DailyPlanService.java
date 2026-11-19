@@ -8,6 +8,7 @@ import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.DailyTaskPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.LLMUserContextDto;
 import com.quronest.quronest_backend.exception.DailyPlanNotFoundException;
+import com.quronest.quronest_backend.exception.InvalidLimitException;
 import com.quronest.quronest_backend.model.enums.JobType;
 import com.quronest.quronest_backend.model.table.*;
 import com.quronest.quronest_backend.repository.DailyPlanRepository;
@@ -46,10 +47,21 @@ public class DailyPlanService {
         this.userJourneyRepository = userJourneyRepository;
     }
 
-    public JobStatusDto generateNextPlans() {
+    public JobStatusDto generateNextPlans(LocalDate startDate, Integer limit) {
+        if (limit != null && (limit < 1 || limit > 10)) {
+            throw new InvalidLimitException(1, 10);
+        }
+
         User user = userService.getAuthenticatedUser();
-        LLMUserContextDto userContextDto = llmContextService.getUserContext(user);
-        DailyPlanGenerateLLMRequestDto llmRequestDto = new DailyPlanGenerateLLMRequestDto(userContextDto);
+        UserJourney journey = userJourneyService.getUserCurrentJourney(user);
+
+        LocalDate planStartDate = startDate != null ? startDate : getNextPlanDate(journey);
+        int planLimit = limit != null ? limit : 7;
+
+        LLMUserContextDto userContextDto = llmContextService.getUserContext(journey);
+        DailyPlanGenerateLLMRequestDto llmRequestDto = new DailyPlanGenerateLLMRequestDto(userContextDto,
+                                                                                          planStartDate,
+                                                                                          planLimit);
 
         // create new job and add to queue
         Job existedJob = jobProducerService.verifyAndGetExistedJob(user, JobType.LLM_GENERATE_DAILY_PLAN);
@@ -63,12 +75,13 @@ public class DailyPlanService {
     }
 
     @Transactional
-    public List<DailyPlan> saveGeneratedDailyPlans(User user, List<DailyPlanLLMResponseDto> generatedPlans) {
+    public List<DailyPlan> saveGeneratedDailyPlans(User user, List<DailyPlanLLMResponseDto> generatedPlans,
+                                                   LocalDate startDate) {
         UserJourney journey = userJourneyService.getUserCurrentJourney(user);
 
         List<DailyPlan> dailyPlans = new ArrayList<>();
-        LocalDate planDate = getNextPlanDate(journey);
-        int dayNumber = getNextDayNumber(user, journey);
+        LocalDate planDate = startDate != null ? startDate : getNextPlanDate(journey);
+        int dayNumber = getNextDayNumber(user, journey, planDate);
 
         journey.setLastPlanGeneratedFrom(planDate);
 
@@ -97,7 +110,14 @@ public class DailyPlanService {
         return dailyPlans;
     }
 
-    private int getNextDayNumber(User user, UserJourney journey) {
+    private int getNextDayNumber(User user, UserJourney journey, LocalDate planDate) {
+        DailyPlan previousPlan = dailyPlanRepository.findByUserAndGroupAndPhaseAndPlanDate(user, user.getGroup(),
+                                                                                           user.getPhase(),
+                                                                                           planDate.minusDays(1));
+        if (previousPlan != null && previousPlan.getDayNumber() != null) {
+            return previousPlan.getDayNumber() + 1;
+        }
+
         if (journey.getLastPlanGeneratedTill() == null) {
             return 1;
         }

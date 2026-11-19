@@ -2,6 +2,9 @@ package com.quronest.quronest_backend.exception.handler;
 
 import com.quronest.quronest_backend.dto.ApiErrorDto;
 import com.quronest.quronest_backend.exception.CustomApiErrorResponseException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.ArrayList;
@@ -24,6 +28,27 @@ public class CustomExceptionHandler {
                 .getAllErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        ApiErrorDto apiError = new ApiErrorDto("validation", errors);
+        return new ResponseEntity<ApiErrorDto>(apiError, (HttpHeaders) null, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiErrorDto> handle(HandlerMethodValidationException exception) {
+        List<String> errors = exception.getParameterValidationResults().stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        ApiErrorDto apiError = new ApiErrorDto("validation", errors);
+        return new ResponseEntity<ApiErrorDto>(apiError, (HttpHeaders) null, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiErrorDto> handle(ConstraintViolationException exception) {
+        List<String> errors = exception.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
                 .toList();
 
         ApiErrorDto apiError = new ApiErrorDto("validation", errors);

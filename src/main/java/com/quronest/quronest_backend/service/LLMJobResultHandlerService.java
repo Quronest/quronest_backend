@@ -6,6 +6,7 @@ import com.quronest.quronest_backend.dto.DailyTaskDto;
 import com.quronest.quronest_backend.dto.ErrorMessageDto;
 import com.quronest.quronest_backend.dto.JobStatusDto;
 import com.quronest.quronest_backend.dto.UserGroupSummaryDto;
+import com.quronest.quronest_backend.dto.llm.DailyPlanGenerateLLMRequestDto;
 import com.quronest.quronest_backend.dto.llm.DailyPlanLLMResponseDto;
 import com.quronest.quronest_backend.dto.llm.LLMJobResultDto;
 import com.quronest.quronest_backend.dto.llm.LLMJobResultEventDto;
@@ -26,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -134,7 +136,10 @@ public class LLMJobResultHandlerService {
             throw new JobHandleException("Failed to parse DailyPlanLLMResponseDto list from result.");
         }
 
-        List<DailyPlan> dailyPlans = dailyPlanService.saveGeneratedDailyPlans(user, planDtos);
+        DailyPlanGenerateLLMRequestDto requestDto = job.getMetadataAs(DailyPlanGenerateLLMRequestDto.class);
+        LocalDate startDate = requestDto != null ? requestDto.getStartDate() : null;
+
+        List<DailyPlan> dailyPlans = dailyPlanService.saveGeneratedDailyPlans(user, planDtos, startDate);
         List<DailyPlanSummaryDto> dailyPlanSummaryDtos = dailyPlans.stream().map(DailyPlanSummaryDto::new).toList();
 
         job.setResultMetadata(resultNode);

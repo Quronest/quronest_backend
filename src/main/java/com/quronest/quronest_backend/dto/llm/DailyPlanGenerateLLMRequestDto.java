@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,4 +15,14 @@ import lombok.Setter;
 public class DailyPlanGenerateLLMRequestDto {
     @JsonProperty("user_context")
     private LLMUserContextDto userContext;
+
+    @JsonProperty("start_date")
+    private LocalDate startDate;
+
+    @JsonProperty("limit")
+    private Integer limit;
+
+    public DailyPlanGenerateLLMRequestDto(LLMUserContextDto userContext) {
+        this.userContext = userContext;
+    }
 }
