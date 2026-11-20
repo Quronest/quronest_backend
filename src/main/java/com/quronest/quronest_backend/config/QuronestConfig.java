@@ -20,4 +20,5 @@ public class QuronestConfig {
     private String github_scope = "read:user,user:email";
 
     private Double quizPassThreshold = 30.0;
+    private Integer llmJobExpiryMinutes = 60;
 }

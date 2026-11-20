@@ -61,6 +61,12 @@ public class Job {
     @Column(name = "failed_at")
     private LocalDateTime failedAt;
 
+    @Column(name = "expiry_minutes")
+    private Integer expiryMinutes;
+
+    @Column(name = "expired_at")
+    private LocalDateTime expiredAt;
+
     @Column(name = "creation_timestamp")
     @CreationTimestamp
     private LocalDateTime creationTimestamp;
@@ -73,6 +79,16 @@ public class Job {
         this.user = user;
         this.type = type;
         this.metadata = metadata;
+    }
+
+    public Job(User user, JobType type, JsonNode metadata, Integer expiryMinutes) {
+        this.user = user;
+        this.type = type;
+        this.metadata = metadata;
+        this.expiryMinutes = expiryMinutes;
+        if (expiryMinutes != null) {
+            this.expiredAt = LocalDateTime.now().plusMinutes(expiryMinutes);
+        }
     }
 
     @JsonProperty("user_id")

@@ -1,6 +1,7 @@
 package com.quronest.quronest_backend.service.rabbit;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.quronest.quronest_backend.config.QuronestConfig;
 import com.quronest.quronest_backend.config.RabbitConfig;
 import com.quronest.quronest_backend.dto.llm.LLMJobDto;
 import com.quronest.quronest_backend.dto.llm.LLMJobEventDto;
@@ -20,13 +21,18 @@ import java.util.UUID;
 
 @Service
 public class JobProducerService {
+    private static final int DEFAULT_LLM_JOB_EXPIRY_MINUTES = 60;
+
     private final RabbitTemplate rabbitTemplate;
     private final JobRepository jobRepository;
+    private final QuronestConfig quronestConfig;
 
     public JobProducerService(RabbitTemplate rabbitTemplate,
-                              JobRepository jobRepository) {
+                              JobRepository jobRepository,
+                              QuronestConfig quronestConfig) {
         this.rabbitTemplate = rabbitTemplate;
         this.jobRepository = jobRepository;
+        this.quronestConfig = quronestConfig;
     }
 
     public <T> void publish(String queueName, T event) {
@@ -39,7 +45,8 @@ public class JobProducerService {
 
     public <T> Job publishLLMJob(User user, JobType type, T payload) {
         JsonNode metadata = JsonUtils.toJsonNode(payload);
-        Job job = new Job(user, type, metadata);
+        int expiryMinutes = getLlmJobExpiryMinutes();
+        Job job = new Job(user, type, metadata, expiryMinutes);
         jobRepository.save(job);
 
         LLMJobDto jobDto = new LLMJobDto(job.getId(), type, metadata, job.getMaxRetries());
@@ -47,6 +54,13 @@ public class JobProducerService {
         publish(RabbitConfig.LLM_JOB_MAIN_QUEUE, eventDto);
 
         return job;
+    }
+
+    private int getLlmJobExpiryMinutes() {
+        if (quronestConfig != null && quronestConfig.getLlmJobExpiryMinutes() != null) {
+            return quronestConfig.getLlmJobExpiryMinutes();
+        }
+        return DEFAULT_LLM_JOB_EXPIRY_MINUTES;
     }
 
     public Job verifyAndGetExistedJob(User user, JobType type) {

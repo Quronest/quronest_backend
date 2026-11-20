@@ -2030,6 +2030,51 @@
           }
         ]
       }
+    },
+    {
+      "changeSet": {
+        "id": "7",
+        "author": "sibsankar (manual)",
+        "changes": [
+          {
+            "addColumn": {
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "expiry_minutes",
+                    "type": "INT"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expired_at",
+                    "type": "TIMESTAMP WITHOUT TIME ZONE"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "createIndex": {
+              "indexName": "idx_job_status_expired_at",
+              "tableName": "job",
+              "columns": [
+                {
+                  "column": {
+                    "name": "status"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "expired_at"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
