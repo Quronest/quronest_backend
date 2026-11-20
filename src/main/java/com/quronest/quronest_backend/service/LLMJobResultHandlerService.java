@@ -79,6 +79,12 @@ public class LLMJobResultHandlerService {
             return;
         }
 
+        // Drop expired job
+        if (!job.getStatus().equals(JobStatus.PENDING)) {
+            log.warn("Dropping failed marked job: " + job.getId());
+            return;
+        }
+
         // Update retry count from result
         if (jobResult.getRetries() != null) {
             job.setRetries(jobResult.getRetries());
